@@ -25,6 +25,16 @@ Zentui lets you shape Pi’s interface one component at a time. Customize your e
 
 Editor, User messages, Thinking (Experimental), Working line, Tool display, and selector borders have independent `enabled` fields. Footer uses one `style`: `native`, `starship`, or `hidden`. Use `/zentui` to configure each component without coupling it to the others.
 
+## Changes in this fork
+
+This is a personal fork of [lmilojevicc/pi-zentui](https://github.com/lmilojevicc/pi-zentui) ([upstream README](https://github.com/lmilojevicc/pi-zentui#readme)). It tracks upstream and adds the following to the **Accent Rail** editor style:
+
+- **`railWidth`** — widens the rail column from the default single glyph to 1–4 columns, repeating the rail glyph across the extra width. Configurable via `components.editor.styles.accent-rail.railWidth` or the **Rail width** control in `/zentui editor`.
+- **`metadataFormat`** — an Opencode-style metadata row (model, provider, thinking level, etc.) rendered as plain text directly above the rail, with no rail glyph or filled background of its own. Uses the same template syntax as `components.editor.styles.opencode.metadataFormat`, is hidden automatically when it doesn't fit the available width, and is config-file-only (no `/zentui` control), e.g. `"metadataFormat": "$model  $provider(  $thinking)"`.
+- **Steady 3-row input block** — a lone input line with nothing else around it (no quota, viewport counts, or completions) always reserves a blank rail row above and below it, so the rail reads as a consistent 3-row-tall block with the caret vertically centered, regardless of whether the metadata row is shown.
+
+See [`docs/configuration.md`](./docs/configuration.md#accent-rail) for full details. Everything else in this README describes upstream Zentui behavior and is unchanged.
+
 ## Highlights
 
 | Surface                 | Default               | Available treatments                                                       |
@@ -110,11 +120,14 @@ Zentui detects a broad set of runtime and language modules, preserves Nerd Font 
 ## Install
 
 ```bash
-# From npm
+# From npm (upstream)
 pi install npm:pi-zentui
 
-# From git
+# From git (upstream)
 pi install git:github.com/lmilojevicc/pi-zentui
+
+# From git (this fork, with the Accent Rail changes described above)
+pi install git:git@github.com:ecto-devs/pi-zentui-custom
 ```
 
 ### Oh My Pi
