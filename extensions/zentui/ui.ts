@@ -10,7 +10,12 @@ import {
 	truncateToWidth,
 	visibleWidth,
 } from "@earendil-works/pi-tui";
-import { ACCENT_RAIL_CHROME_WIDTH, renderAccentRailEditorFrame } from "./accent-rail-editor.ts";
+import {
+	ACCENT_RAIL_CHROME_WIDTH,
+	accentRailChromeWidth,
+	renderAccentRailEditorFrame,
+	viewportLabel as accentRailViewportLabel,
+} from "./accent-rail-editor.ts";
 import type { CodexQuota } from "./codex-quota.ts";
 import { renderCodexQuota } from "./codex-quota-display.ts";
 import {
@@ -21,6 +26,7 @@ import { componentColor, editorShellColor } from "./component-colors.ts";
 import type { EditorStyle, ZentuiConfig } from "./config.ts";
 import {
 	type EditorMetadataZones,
+	renderEditorMetadataFormat,
 	renderEditorMetadataFormatSplit,
 	sanitizeEditorMetadataText,
 } from "./editor-metadata-format.ts";
@@ -168,6 +174,7 @@ type PolishedFrameResult = {
 type AccentRailFrameAdapterOptions = {
 	codexQuota?: CodexQuota;
 	width: number;
+	metadata?: string;
 	baseWidth: number;
 	baseRendered: string[];
 	autocompleteSource: AutocompleteEditorInternals;
@@ -399,7 +406,11 @@ function isShellModeInput(text: string): boolean {
 
 export function editorWantsContext(config: ZentuiConfig): boolean {
 	const editor = config.components.editor;
-	if (!editor.enabled || editor.style === "accent-rail") return false;
+	if (!editor.enabled) return false;
+	if (editor.style === "accent-rail")
+		return collectFooterFormatReferences(
+			parseFooterFormat(sanitizeEditorMetadataText(editor.styles["accent-rail"].metadataFormat)),
+		).has("context");
 	if (editor.style === "minimalist")
 		return minimalistTemplateReferences(editor.styles.minimalist).has("context");
 	return collectFooterFormatReferences(
@@ -803,6 +814,39 @@ function readVimStatus(editor: WrappedEditor, uiTheme: Theme): string | undefine
 	return safeThemeFg(uiTheme, vimModeColor(normalized), label);
 }
 
+/** Renders the accent-rail metadata row; metadata failures fail open to no row. */
+export function renderAccentRailMetadataLine(
+	config: ZentuiConfig,
+	modelMeta: EditorMeta,
+	thinkingLevel: string | undefined,
+	uiTheme: Theme,
+): string | undefined {
+	try {
+		const format = config.components.editor.styles["accent-rail"].metadataFormat;
+		const values = {
+			codexQuota: modelMeta.codexQuota,
+			model: modelMeta.modelLabel,
+			modelId: modelMeta.modelId ?? "",
+			modelName: modelMeta.modelName ?? "",
+			provider: modelMeta.providerLabel,
+			thinking: thinkingLevel ?? "",
+			fastMode: modelMeta.fastMode,
+			sessionName: modelMeta.sessionName ?? "",
+			contextPercent: modelMeta.contextPercent,
+			contextWindow: modelMeta.contextWindow,
+			inputTokens: modelMeta.inputTokens,
+			outputTokens: modelMeta.outputTokens,
+			cacheHitRate: modelMeta.cacheHitRate,
+			customVariables: modelMeta.customVariables,
+			hostTemplateValues: modelMeta.hostTemplateValues,
+		};
+		const line = renderEditorMetadataFormat(format, values, uiTheme, config);
+		return line ? line : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
 function renderAccentRailFrameFromBase({
 	codexQuota,
 	width,
@@ -810,12 +854,14 @@ function renderAccentRailFrameFromBase({
 	baseRendered,
 	autocompleteSource,
 	autocompleteCapture,
+	metadata,
 	uiTheme,
 	config,
 	ownedFrame,
 	trustedBaseFrame = false,
 }: AccentRailFrameAdapterOptions): PolishedFrameResult {
-	if (width < ACCENT_RAIL_CHROME_WIDTH + 1) {
+	const chromeWidth = accentRailChromeWidth(config);
+	if (width < chromeWidth + 1) {
 		return { lines: clampRenderedLines(baseRendered, width), decorated: false };
 	}
 	if (ownedFrame && !isPolishedFrameSplit(ownedFrame, baseRendered.length)) {
@@ -831,8 +877,22 @@ function renderAccentRailFrameFromBase({
 	);
 	if (!frame) return { lines: clampRenderedLines(baseRendered, width), decorated: false };
 	const { editorLines, trailingLines: autocompleteLines, viewport } = frame;
+	const contentWidth = Math.max(0, width - chromeWidth - 1);
 	const quotaRow = renderCodexQuota(codexQuota, uiTheme, config, "editor");
-	const quotaVisible = quotaRow && visibleWidth(quotaRow) <= width - ACCENT_RAIL_CHROME_WIDTH;
+	const quotaVisible = Boolean(quotaRow && visibleWidth(quotaRow) <= contentWidth);
+	const above = config.components.editor.viewportIndicators
+		? accentRailViewportLabel("above", viewport.above)
+		: undefined;
+	const below = config.components.editor.viewportIndicators
+		? accentRailViewportLabel("below", viewport.below)
+		: undefined;
+	// A lone input row with nothing else around it gets a reserved blank row on
+	// each side, rendered as part of the rail surface itself (see
+	// renderAccentRailEditorFrame). The metadata row, when visible, is plain
+	// text with no rail/background and always sits above that block.
+	const padded =
+		!above && !below && !quotaVisible && editorLines.length === 1 && autocompleteLines.length === 0;
+	const infoVisible = Boolean(metadata && visibleWidth(metadata) + chromeWidth <= width);
 	const renderedLines = renderAccentRailEditorFrame({
 		codexQuota,
 		width,
@@ -841,14 +901,15 @@ function renderAccentRailFrameFromBase({
 		viewport,
 		uiTheme,
 		config,
+		padSingleLine: true,
 	});
-	const lines = renderedLines.length === 1 ? ["", ...renderedLines, ""] : renderedLines;
+	const lines = infoVisible
+		? [" ".repeat(chromeWidth) + metadata, ...renderedLines]
+		: renderedLines;
 	if (frame.nativeStatusLine !== undefined) lines.unshift(frame.nativeStatusLine);
-	const bodyStart =
-		(renderedLines.length === 1 ? 1 : 0) +
-		(config.components.editor.viewportIndicators && viewport.above ? 1 : 0);
+	const bodyStart = (padded ? 1 : 0) + (infoVisible ? 1 : 0) + (above ? 1 : 0);
 	rememberNormalizedMouseLayout(lines, baseRendered, frame, {
-		body: editorMouseCells(editorLines.length, ACCENT_RAIL_CHROME_WIDTH, bodyStart),
+		body: editorMouseCells(editorLines.length, chromeWidth, bodyStart),
 		completion: editorMouseCells(
 			autocompleteLines.length,
 			0,
@@ -1254,6 +1315,15 @@ export class PolishedEditor extends CustomEditor {
 		);
 	}
 
+	private renderAccentRailMetadata(): string | undefined {
+		return renderAccentRailMetadataLine(
+			this.getConfig(),
+			this.getModelMeta(),
+			this.getThinkingLevel(),
+			this.uiTheme,
+		);
+	}
+
 	canEmbedWorkingLineBorder(): boolean {
 		return this.focused && this.workingLineBorderCapable;
 	}
@@ -1291,14 +1361,15 @@ export class PolishedEditor extends CustomEditor {
 			this.reportMetadataDecoration(false);
 			this.reportWorkingLineBorder(false);
 			this.reportMinimalistDecoration(false);
-			if (width < ACCENT_RAIL_CHROME_WIDTH + 1) {
+			const chromeWidth = accentRailChromeWidth(config);
+			if (width < chromeWidth + 1) {
 				return this.renderFallback(this.renderBase(width), width);
 			}
 			let captured: { value: string[]; capture?: AutocompleteCapture };
 			try {
 				captured = renderWithAutocompleteCapture(
 					this as unknown as AutocompleteEditorInternals,
-					() => this.renderBase(width - ACCENT_RAIL_CHROME_WIDTH),
+					() => this.renderBase(width - chromeWidth),
 				);
 			} catch {
 				return this.renderFallback(this.renderBase(width), width);
@@ -1307,10 +1378,11 @@ export class PolishedEditor extends CustomEditor {
 				const result = renderAccentRailFrameFromBase({
 					codexQuota: this.getModelMeta().codexQuota,
 					width,
-					baseWidth: width - ACCENT_RAIL_CHROME_WIDTH,
+					baseWidth: width - chromeWidth,
 					baseRendered: captured.value,
 					autocompleteSource: this as unknown as AutocompleteEditorInternals,
 					autocompleteCapture: captured.capture,
+					metadata: this.renderAccentRailMetadata(),
 					uiTheme: this.uiTheme,
 					config,
 					trustedBaseFrame: true,
@@ -1554,6 +1626,15 @@ export class WrappedPolishedEditor implements EditorComponent {
 		return this.mouse.baseRendered(width, this.base.render(width));
 	}
 
+	private renderAccentRailMetadata(): string | undefined {
+		return renderAccentRailMetadataLine(
+			this.getConfig(),
+			this.getModelMeta(),
+			this.getThinkingLevel(),
+			this.uiTheme,
+		);
+	}
+
 	canEmbedWorkingLineBorder(): boolean {
 		return this.focused && this.workingLineBorderCapable;
 	}
@@ -1591,13 +1672,14 @@ export class WrappedPolishedEditor implements EditorComponent {
 			this.reportMetadataDecoration(false);
 			this.reportWorkingLineBorder(false);
 			this.reportMinimalistDecoration(false);
-			if (width < ACCENT_RAIL_CHROME_WIDTH + 1) {
+			const chromeWidth = accentRailChromeWidth(config);
+			if (width < chromeWidth + 1) {
 				return this.renderFallback(this.renderBase(width), width);
 			}
 			let captured: { value: string[]; capture?: AutocompleteCapture };
 			try {
 				captured = renderWithAutocompleteCapture(this.base, () =>
-					this.renderBase(width - ACCENT_RAIL_CHROME_WIDTH),
+					this.renderBase(width - chromeWidth),
 				);
 			} catch {
 				return this.renderFallback(this.renderBase(width), width);
@@ -1613,10 +1695,11 @@ export class WrappedPolishedEditor implements EditorComponent {
 					const result = renderAccentRailFrameFromBase({
 						codexQuota: this.getModelMeta().codexQuota,
 						width,
-						baseWidth: width - ACCENT_RAIL_CHROME_WIDTH,
+						baseWidth: width - chromeWidth,
 						baseRendered: captured.value,
 						autocompleteSource: this.base,
 						autocompleteCapture: captured.capture,
+						metadata: this.renderAccentRailMetadata(),
 						uiTheme: this.uiTheme,
 						config,
 						ownedFrame: provenance.ownedFrame,

@@ -1,6 +1,6 @@
 import type { Theme } from "@earendil-works/pi-coding-agent";
 import { Markdown, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
-import { renderAccentRailEditorFrame } from "./accent-rail-editor.ts";
+import { accentRailChromeWidth, renderAccentRailEditorFrame } from "./accent-rail-editor.ts";
 import type { PolishedTuiConfig } from "./config.ts";
 import { sanitizeEditorMetadataText } from "./editor-metadata-format.ts";
 import { renderMinimalistFrame } from "./minimalist-editor.ts";
@@ -8,7 +8,7 @@ import { safeThemeFg } from "./style.ts";
 import { createThinkingStepsRows } from "./thinking-experimental.ts";
 import { formatThinkingStatus, thinkingStatusLabels } from "./thinking-status.ts";
 import { parseThinkingSteps } from "./thinking-steps.ts";
-import { renderPolishedEditorFrame } from "./ui.ts";
+import { renderAccentRailMetadataLine, renderPolishedEditorFrame } from "./ui.ts";
 import { makeMarkdownTheme, renderUserMessageStyle } from "./user-message-styles.ts";
 
 export const SETTINGS_PREVIEW_MAX_WIDTH = 72;
@@ -106,7 +106,19 @@ export function renderEditorSettingsPreview(
 	const viewport = editor.viewportIndicators ? { above: "2", below: "3" } : undefined;
 	let frame: string[];
 	if (editor.style === "accent-rail") {
-		frame = renderAccentRailEditorFrame({
+		const metadata = renderAccentRailMetadataLine(
+			safeConfig,
+			{
+				codexQuota,
+				modelLabel,
+				modelId,
+				modelName,
+				providerLabel: "anthropic",
+			},
+			"high",
+			theme,
+		);
+		const rows = renderAccentRailEditorFrame({
 			codexQuota,
 			width: previewWidth,
 			editorLines,
@@ -115,6 +127,7 @@ export function renderEditorSettingsPreview(
 			uiTheme: theme,
 			config: safeConfig,
 		});
+		frame = metadata ? [" ".repeat(accentRailChromeWidth(safeConfig)) + metadata, ...rows] : rows;
 	} else if (editor.style === "minimalist") {
 		frame = renderMinimalistFrame({
 			width: previewWidth,

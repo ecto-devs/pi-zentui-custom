@@ -4,6 +4,7 @@ import { visibleWidth } from "@earendil-works/pi-tui";
 import { describe, expect, it } from "vitest";
 import { renderAccentRailEditorFrame } from "../extensions/zentui/accent-rail-editor";
 import { mergeConfig, type PolishedTuiConfig } from "../extensions/zentui/config";
+import { WrappedPolishedEditor } from "../extensions/zentui/ui";
 
 function theme(calls: Array<{ color: string; text: string }> = []): Theme {
 	return {
@@ -240,5 +241,95 @@ describe("accent rail editor frame", () => {
 		expect(render()).toEqual(["▎ ↑ 2 more      ", "▎ draft         ", "▎ ↓ 3 more      "]);
 		current.components.editor.viewportIndicators = false;
 		expect(render()).toEqual(["▎ draft         "]);
+	});
+});
+
+describe("accent rail editor frame metadata and rail width", () => {
+	function railConfig(): PolishedTuiConfig {
+		const current = config();
+		current.components.editor.style = "accent-rail";
+		return current;
+	}
+
+	function baseEditor(text = "draft") {
+		return {
+			render: (width: number) => ["─".repeat(width), text, "─".repeat(width)],
+			invalidate() {},
+			handleInput() {},
+			getText: () => text,
+			setText() {},
+		};
+	}
+
+	it("renders the metadata row as plain text above the reserved rail block when it fits", () => {
+		const editor = new WrappedPolishedEditor(
+			baseEditor() as never,
+			theme(),
+			() => railConfig(),
+			() => ({ modelLabel: "sonnet-4", providerLabel: "anthropic" }),
+			() => "high",
+		);
+		const rows = editor.render(28).map(plain);
+		expect(rows[0]).toBe("  sonnet-4  anthropic  high");
+		expect(rows.slice(1)).toEqual([
+			"▎                           ",
+			"▎ draft                     ",
+			"▎                           ",
+		]);
+		// Metadata is plain text: no rail glyph, no filled background.
+		expect(editor.render(28)[0]).not.toContain("▎");
+		expect(editor.render(28)[0]).not.toContain("\x1b[48;5;234m");
+	});
+
+	it("hides the metadata row when it does not fit the width", () => {
+		const editor = new WrappedPolishedEditor(
+			baseEditor() as never,
+			theme(),
+			() => railConfig(),
+			() => ({ modelLabel: "sonnet-4", providerLabel: "anthropic" }),
+			() => "high",
+		);
+		const rows = editor.render(10).map(plain);
+		expect(rows.some((row) => row.includes("sonnet-4"))).toBe(false);
+	});
+
+	it("repeats the rail glyph for wider rails", () => {
+		const current = railConfig();
+		current.components.editor.styles["accent-rail"].railWidth = 4;
+		const rows = renderAccentRailEditorFrame({
+			width: 20,
+			editorLines: ["draft"],
+			uiTheme: theme(),
+			config: current,
+		});
+		expect(rows.map(plain)).toEqual(["▎▎▎ draft           "]);
+		expect(visibleWidth(rows[0])).toBe(20);
+	});
+
+	it("falls back to plain rows when the rail leaves no content width", () => {
+		const current = railConfig();
+		current.components.editor.styles["accent-rail"].railWidth = 4;
+		const rows = renderAccentRailEditorFrame({
+			width: 4,
+			editorLines: ["draft"],
+			uiTheme: theme(),
+			config: current,
+		});
+		expect(rows.map(plain)).toEqual(["draf"]);
+	});
+
+	it("metadata stays plain text regardless of the transparent surface setting", () => {
+		const current = railConfig();
+		current.components.editor.styles["accent-rail"].transparent = true;
+		const editor = new WrappedPolishedEditor(
+			baseEditor() as never,
+			theme(),
+			() => current,
+			() => ({ modelLabel: "sonnet-4", providerLabel: "anthropic" }),
+			() => "high",
+		);
+		const rows = editor.render(28);
+		expect(rows[0]).not.toContain("\x1b[48;5;234m");
+		expect(plain(rows[0])).toBe("  sonnet-4  anthropic  high");
 	});
 });

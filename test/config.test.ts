@@ -17,6 +17,7 @@ import { join } from "node:path";
 import { visibleWidth } from "@earendil-works/pi-tui";
 import { describe, expect, it } from "vitest";
 import {
+	DEFAULT_ACCENT_RAIL_METADATA_FORMAT,
 	DEFAULT_COMPACT_FOOTER_FORMAT,
 	DEFAULT_EDITOR_METADATA_FORMAT,
 	defaultConfig,
@@ -119,6 +120,8 @@ describe("canonical config resolution", () => {
 						rail: "▎",
 						asciiRail: "|",
 						transparent: false,
+						railWidth: 2,
+						metadataFormat: DEFAULT_ACCENT_RAIL_METADATA_FORMAT,
 					},
 					minimalist: {
 						formats: { bottomLeft: "$session_name$join_sep($git_branch)" },
@@ -227,6 +230,8 @@ describe("canonical config resolution", () => {
 			rail: "!",
 			asciiRail: ":",
 			transparent: true,
+			railWidth: 2,
+			metadataFormat: DEFAULT_ACCENT_RAIL_METADATA_FORMAT,
 		});
 		expect(config.colors.editorRail).toBe("bright-green");
 		expect(config.colors.editorAccent).toBe("error");
@@ -242,7 +247,37 @@ describe("canonical config resolution", () => {
 			rail: "▎",
 			asciiRail: "|",
 			transparent: false,
+			railWidth: 2,
+			metadataFormat: DEFAULT_ACCENT_RAIL_METADATA_FORMAT,
 		});
+	});
+
+	it("normalizes and clamps accent-rail railWidth and metadataFormat", () => {
+		const config = mergeConfig({
+			components: {
+				editor: {
+					styles: {
+						"accent-rail": {
+							railWidth: 99,
+							metadataFormat: "  ",
+						},
+					},
+				},
+			},
+		});
+		expect(config.components.editor.styles["accent-rail"].railWidth).toBe(4);
+		expect(config.components.editor.styles["accent-rail"].metadataFormat).toBe(
+			DEFAULT_ACCENT_RAIL_METADATA_FORMAT,
+		);
+
+		const negative = mergeConfig({
+			components: {
+				editor: {
+					styles: { "accent-rail": { railWidth: 0 } },
+				},
+			},
+		});
+		expect(negative.components.editor.styles["accent-rail"].railWidth).toBe(1);
 	});
 
 	it("bridges explicit legacy branch colors into the independent Editor branch role", () => {
@@ -1838,6 +1873,8 @@ describe("mergeConfig", () => {
 				rail: "▎",
 				asciiRail: "|",
 				transparent: false,
+				railWidth: 2,
+				metadataFormat: DEFAULT_ACCENT_RAIL_METADATA_FORMAT,
 			});
 
 			const polished = saveEditorStyle("opencode", path);

@@ -213,7 +213,9 @@ Reference only—not a starter file. Prefer the minimal overrides above. Optiona
 				"accent-rail": {
 					"rail": "▎",
 					"asciiRail": "|",
-					"transparent": false
+					"transparent": false,
+					"railWidth": 2,
+					"metadataFormat": "$model  $provider(  $thinking)"
 				},
 				"minimalist": {
 					"formats": {
@@ -591,7 +593,13 @@ Minimalist draws a full box frame rather than a rail, so the rail keys leave its
 
 ### Accent Rail
 
-Set `components.editor.style` to `accent-rail` or select **Accent Rail** in `/zentui`. Each input row uses its style-owned `rail` glyph (`▎`, or `asciiRail` in ASCII mode), one blank cell before text, and Pi's neutral filled surface. A configured `components.editor.rail` overrides the style-owned glyph for every editor style that draws a rail; `components.editor.asciiRail` replaces it in ASCII icon mode. By default it has no prompt glyph, metadata, enclosing border, or blank chrome row. Opt-in eligible Codex quota is the sole metadata exception, adding a separate row beneath input when it fits. Viewport counts appear only while content is clipped.
+Set `components.editor.style` to `accent-rail` or select **Accent Rail** in `/zentui`. Each input row uses its style-owned `rail` glyph (`▎`, or `asciiRail` in ASCII mode), one blank cell before text, and Pi's neutral filled surface. A configured `components.editor.rail` overrides the style-owned glyph for every editor style that draws a rail; `components.editor.asciiRail` replaces it in ASCII icon mode. Opt-in eligible Codex quota adds a separate row beneath input when it fits. Viewport counts appear only while content is clipped.
+
+`components.editor.styles.accent-rail.railWidth` widens the rail column (1–4, default `2`), repeating the rail glyph across the extra columns. It is also exposed as **Rail width** in `/zentui editor`.
+
+`components.editor.styles.accent-rail.metadataFormat` (default `$model  $provider(  $thinking)`) renders an opencode-style metadata row above the input, reusing the same template syntax and variables as `components.editor.styles.opencode.metadataFormat`. It is plain text with no rail glyph or filled background — unlike the input rows, it is never part of the rail surface. It is hidden automatically when it would not fit the available width, and is config-file-only (no `/zentui` control), matching opencode's metadata format setting.
+
+A lone input line with nothing else around it (no quota, viewport counts, or completions) always reserves a blank rail row above and below it, so the rail reads as a steady 3-row block with the caret vertically centered; the metadata row, when visible, sits above that reserved block and never affects the padding.
 
 Known autocomplete rows retain Pi's native text, descriptions, and scrolling on the same full-width surface. The selected native `→` becomes the configured rail without replacing Pi's selected-text color. Ambiguous third-party editor layouts fail open using already-rendered native rows.
 

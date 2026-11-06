@@ -175,6 +175,8 @@ export type AccentRailEditorStyleConfig = {
 	rail: string;
 	asciiRail: string;
 	transparent: boolean;
+	railWidth: number;
+	metadataFormat: string;
 };
 
 export type MinimalistEditorStyleConfig = {
@@ -568,10 +570,17 @@ const defaultFooterSegments: FooterSegmentsConfig = {
 
 const DEFAULT_COMPLETION_MENU: CompletionMenuStyle = "palette";
 
+export const DEFAULT_ACCENT_RAIL_METADATA_FORMAT = "$model  $provider(  $thinking)";
+
+export const ACCENT_RAIL_WIDTH_MIN = 1;
+export const ACCENT_RAIL_WIDTH_MAX = 4;
+
 const defaultAccentRailStyle: AccentRailEditorStyleConfig = {
 	rail: "▎",
 	asciiRail: "|",
 	transparent: false,
+	railWidth: 2,
+	metadataFormat: DEFAULT_ACCENT_RAIL_METADATA_FORMAT,
 };
 
 const defaultMinimalistStyle: MinimalistEditorStyleConfig = {
@@ -1170,6 +1179,11 @@ function parseNonEmptyString(value: unknown, fallback: string): string {
 	return typeof value === "string" && value.length > 0 ? value : fallback;
 }
 
+function parseAccentRailWidth(value: unknown, fallback: number): number {
+	if (typeof value !== "number" || !Number.isInteger(value)) return fallback;
+	return Math.min(ACCENT_RAIL_WIDTH_MAX, Math.max(ACCENT_RAIL_WIDTH_MIN, value));
+}
+
 /** Optional single-cell glyph; unset means "inherit the owner's fallback". */
 function parseOptionalGlyph(value: unknown): string | undefined {
 	return typeof value === "string" && value.trim().length > 0 ? value : undefined;
@@ -1502,6 +1516,13 @@ function resolveComponents(config: ConfigRecord): ComponentsConfig {
 					rail: parseNonEmptyString(accentRail.rail, defaultAccentRailStyle.rail),
 					asciiRail: parseNonEmptyString(accentRail.asciiRail, defaultAccentRailStyle.asciiRail),
 					transparent: parseBoolean(accentRail.transparent, defaultAccentRailStyle.transparent),
+					railWidth: parseAccentRailWidth(accentRail.railWidth, defaultAccentRailStyle.railWidth),
+					metadataFormat: parseNonEmptyString(
+						typeof accentRail.metadataFormat === "string"
+							? accentRail.metadataFormat.trim()
+							: undefined,
+						DEFAULT_ACCENT_RAIL_METADATA_FORMAT,
+					),
 				},
 				minimalist: {
 					formats: {
@@ -2116,6 +2137,8 @@ export function saveAccentRailEditorStylePatch(
 			if (patch.rail !== undefined) style.rail = patch.rail;
 			if (patch.asciiRail !== undefined) style.asciiRail = patch.asciiRail;
 			if (patch.transparent !== undefined) style.transparent = patch.transparent;
+			if (patch.railWidth !== undefined) style.railWidth = patch.railWidth;
+			if (patch.metadataFormat !== undefined) style.metadataFormat = patch.metadataFormat;
 		},
 		path,
 	);

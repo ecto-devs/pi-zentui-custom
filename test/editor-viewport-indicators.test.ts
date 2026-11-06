@@ -59,6 +59,11 @@ function config(
 						...base.components.editor.styles["opencode-copy-friendly"],
 						...(options.completionMenu ? { completionMenu: options.completionMenu } : {}),
 					},
+					// These layout tests predate the accent-rail metadata row; keep it off.
+					"accent-rail": {
+						...base.components.editor.styles["accent-rail"],
+						metadataFormat: "",
+					},
 				},
 			},
 		},
@@ -81,7 +86,20 @@ function withEditorStyle(
 		...base,
 		components: {
 			...base.components,
-			editor: { ...base.components.editor, style },
+			editor: {
+				...base.components.editor,
+				style,
+				styles:
+					style === "accent-rail"
+						? {
+								...base.components.editor.styles,
+								"accent-rail": {
+									...base.components.editor.styles["accent-rail"],
+									metadataFormat: "",
+								},
+							}
+						: base.components.editor.styles,
+			},
 		},
 	};
 }
@@ -1058,10 +1076,46 @@ describe("accent rail editor integration", () => {
 		const lines = editor.render(24);
 
 		expect(lines).toHaveLength(3);
-		expect(lines[0]).toBe("");
+		expect(lines[0]).toMatch(/^▎\s*$/);
 		expect(lines[1]).toMatch(/^▎ typed text/);
-		expect(lines[2]).toBe("");
-		expect([...lines, "footer"].slice(-3)).toEqual([lines[1], "", "footer"]);
+		expect(lines[2]).toMatch(/^▎\s*$/);
+		expect([...lines, "footer"].slice(-3)).toEqual([lines[1], lines[2], "footer"]);
+	});
+
+	it("keeps the metadata row above the reserved blank/text/blank block", () => {
+		const withMetadata = {
+			...config({ style: "accent-rail" }),
+			components: {
+				...config({ style: "accent-rail" }).components,
+				editor: {
+					...config({ style: "accent-rail" }).components.editor,
+					styles: {
+						...config({ style: "accent-rail" }).components.editor.styles,
+						"accent-rail": {
+							...config({ style: "accent-rail" }).components.editor.styles["accent-rail"],
+							metadataFormat: "$model  $provider",
+						},
+					},
+				},
+			},
+		};
+		const editor = new WrappedPolishedEditor(
+			baseEditor({}) as never,
+			theme(),
+			() => withMetadata,
+			() => ({ modelLabel: "model", providerLabel: "provider" }),
+			() => "off",
+		);
+		const lines = editor.render(24);
+
+		expect(lines).toHaveLength(4);
+		expect(lines[0]).toContain("model");
+		expect(lines[0]).toContain("provider");
+		// The metadata row is plain text with no rail/background.
+		expect(lines[0]).not.toContain("▎");
+		expect(lines[1]).toMatch(/^▎\s*$/);
+		expect(lines[2]).toMatch(/^▎ typed text/);
+		expect(lines[3]).toMatch(/^▎\s*$/);
 	});
 
 	it("fails open from the reduced same-render rows for untrusted third-party output", () => {
@@ -1074,9 +1128,9 @@ describe("accent rail editor integration", () => {
 
 	it("renders the standalone editor with the same reserved rows and accent rail", () => {
 		const lines = standalone("accent-rail").render(24);
-		expect(lines[0]).toBe("");
+		expect(lines[0]).toMatch(/^▎\s*$/);
 		expect(lines[1]).toMatch(/^▎ /);
-		expect(lines[2]).toBe("");
+		expect(lines[2]).toMatch(/^▎\s*$/);
 		expect(lines.every((line) => visibleWidth(line) <= 24)).toBe(true);
 	});
 });
@@ -1142,9 +1196,9 @@ describe("minimalist editor integration", () => {
 		expect(rawWidths).toEqual([36, 38, 36, 34, 36]);
 		expect(polished.join("\n").match(/provider/g)).toHaveLength(1);
 		expect(lowRail.join("\n").match(/provider/g)).toHaveLength(1);
-		expect(accentRail[0]).toBe("");
+		expect(accentRail[0]).toMatch(/^▎\s*$/);
 		expect(accentRail[1]).toMatch(/^▎ typed text/);
-		expect(accentRail[2]).toBe("");
+		expect(accentRail[2]).toMatch(/^▎\s*$/);
 		expect(accentRail.join("\n")).not.toContain("provider");
 		expect(minimalist[0]).toMatch(/^╭.*╮$/);
 		expect(minimalist.at(-1)).toMatch(/^╰.*╯$/);

@@ -7138,8 +7138,15 @@ describe("three-state Footer lifecycle", () => {
 		);
 		expect(outer).not.toBe(baseEditor);
 		const rows = (outer as { render(width: number): string[] }).render(80);
-		expect(rows).toHaveLength(3);
-		expect(rows.join("\n")).toContain("third-party");
+		// The default accent-rail metadata row renders above the reserved blank/
+		// text/blank block when model info is available (as it is via
+		// makeContext's ctx.model); the single third-party line still gets its
+		// reserved blank rows, with metadata sitting above them.
+		expect(rows).toHaveLength(4);
+		expect(rows[0]).toContain("claude-sonnet");
+		expect(rows[1]).toMatch(/^\x1b\[[0-9;]*m.\x1b\[0m\s*$/);
+		expect(rows[2]).toContain("third-party");
+		expect(rows[3]).toMatch(/^\x1b\[[0-9;]*m.\x1b\[0m\s*$/);
 		expect(Reflect.ownKeys(baseEditor)).toEqual([
 			"render",
 			"invalidate",

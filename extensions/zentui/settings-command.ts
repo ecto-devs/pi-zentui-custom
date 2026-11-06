@@ -146,6 +146,7 @@ const footerStyleLabels: Record<FooterStyle, string> = {
 const footerStyleValues = Object.values(footerStyleLabels);
 const completionMenuValues: CompletionMenuStyle[] = ["palette", "native"];
 const accentRailSurfaceValues = ["filled", "transparent"];
+const accentRailWidthValues = ["1", "2", "3", "4"];
 const railGlyphValues = [RAIL_GLYPH_INHERIT, ...RAIL_GLYPH_CHOICES];
 const minimalistPathDisplayValues = ["compact", "project", "full"];
 const minimalistContextFormatValues = ["percent", "percent-total"];
@@ -732,6 +733,14 @@ function buildPolishedEditorStyleItems(config: PolishedTuiConfig): SettingItem[]
 function buildAccentRailEditorStyleItems(config: PolishedTuiConfig): SettingItem[] {
 	const accentRail = config.components.editor.styles["accent-rail"];
 	return [
+		{
+			id: "accentRailWidth",
+			label: "Rail width",
+			description:
+				"How many columns the accent rail occupies. The model metadata row (config: components.editor.styles.accent-rail.metadataFormat) renders above the input when it fits.",
+			currentValue: String(accentRail.railWidth),
+			values: accentRailWidthValues,
+		},
 		{
 			id: "accentRailSurface",
 			label: "Editor background",
@@ -2113,6 +2122,12 @@ export function registerZentuiSettingsCommand(pi: ExtensionAPI, deps: SettingsCo
 											else return;
 											settingsList.updateValue(id, newValue);
 											notifyChange("Completion menu", newValue);
+											return;
+										}
+										if (id === "accentRailWidth" && accentRailWidthValues.includes(newValue)) {
+											deps.setAccentRail({ railWidth: Number(newValue) }, ctx);
+											settingsList.updateValue(id, newValue);
+											notifyChange("Rail width", newValue);
 											return;
 										}
 										if (

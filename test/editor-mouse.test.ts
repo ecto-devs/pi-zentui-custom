@@ -32,6 +32,10 @@ const styles: EditorStyle[] = ["opencode", "opencode-copy-friendly", "accent-rai
 function config(style: EditorStyle) {
 	const value = structuredClone(defaultConfig);
 	value.components.editor.style = style;
+	if (style === "accent-rail") {
+		// Layout tests predate the accent-rail metadata row; keep it off.
+		value.components.editor.styles["accent-rail"].metadataFormat = "";
+	}
 	return value;
 }
 function mouse(editor: object, event: EditorMouseEvent) {

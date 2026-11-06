@@ -115,7 +115,8 @@ describe("settings previews", () => {
 		expect(outputs["accent-rail"]).toContain("▎ Explain this change safely.");
 		expect(outputs["accent-rail"]).toContain("▎ settings     Open settings");
 		expect(outputs["accent-rail"]).toContain("  files        Search files");
-		expect(outputs["accent-rail"]).not.toContain("sonnet-4");
+		// Metadata is plain text above the rail: no rail glyph, no background.
+		expect(outputs["accent-rail"]).toContain("  sonnet-4  anthropic  high");
 		expect(outputs.minimalist).toContain("╭─ ↑ 2 more");
 		expect(outputs.minimalist).toContain("╰─ ↓ 3 more");
 		expect(outputs.minimalist).toContain("feat/settings-previews");

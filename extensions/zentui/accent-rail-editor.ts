@@ -32,7 +32,17 @@ export type AccentRailEditorFrameOptions = {
 	viewport?: AccentRailViewport;
 	uiTheme: Theme;
 	config: ZentuiConfig;
+	/**
+	 * Reserve a blank rail row on each side of a lone input line (rendered
+	 * through the same surface as the text) so the block always reads as a
+	 * 3-row-tall rail. Off by default to keep pure/preview renders tight.
+	 */
+	padSingleLine?: boolean;
 };
+
+export function accentRailChromeWidth(config: ZentuiConfig): number {
+	return config.components.editor.styles["accent-rail"].railWidth;
+}
 
 function clampLines(lines: string[], width: number): string[] {
 	const maxWidth = Math.max(0, width);
@@ -43,7 +53,7 @@ function selectedRail(config: ZentuiConfig): string {
 	return resolveAccentRailGlyph(config);
 }
 
-function viewportLabel(
+export function viewportLabel(
 	direction: "above" | "below",
 	count: string | undefined,
 ): string | undefined {
@@ -60,12 +70,17 @@ export function renderAccentRailEditorFrame({
 	viewport = {},
 	uiTheme,
 	config,
+	padSingleLine = false,
 }: AccentRailEditorFrameOptions): string[] {
-	if (width < ACCENT_RAIL_CHROME_WIDTH + 1) {
+	const chromeWidth = accentRailChromeWidth(config);
+	if (width < chromeWidth + 1) {
 		return clampLines([...editorLines, ...autocompleteLines], width);
 	}
 
-	const contentWidth = width - ACCENT_RAIL_CHROME_WIDTH;
+	// The rail owns the first chromeWidth - 1 columns; the final chrome column
+	// stays a space so the body begins one column in, exactly like the original
+	// rail. Usable body text width is the space column plus what follows it.
+	const contentWidth = Math.max(0, width - chromeWidth - 1);
 	const rail = renderStyleForSourceOrFallback(
 		uiTheme,
 		config.components.editor.colorSource,
@@ -80,16 +95,32 @@ export function renderAccentRailEditorFrame({
 		? viewportLabel("below", viewport.below)
 		: undefined;
 	const quota = renderCodexQuota(codexQuota, uiTheme, config, "editor");
+	const quotaVisible = Boolean(quota && visibleWidth(quota) <= contentWidth);
+	// A lone input row with nothing else around it keeps a reserved blank row
+	// on each side, rendered through the same rail/surface treatment as the
+	// text itself so the whole 3-row block reads as one continuous rail.
+	const padded =
+		padSingleLine &&
+		!above &&
+		!below &&
+		!quotaVisible &&
+		editorLines.length === 1 &&
+		autocompleteLines.length === 0;
+	const paddedEditorLines = padded ? ["", ...editorLines, ""] : editorLines;
 	const rows = [
 		...(above ? [above] : []),
-		...editorLines,
+		...paddedEditorLines,
 		...(below ? [below] : []),
-		...(quota && visibleWidth(quota) <= contentWidth ? [quota] : []),
+		...(quotaVisible ? [quota as string] : []),
 	];
 	const transparent = config.components.editor.styles["accent-rail"].transparent;
+	// The rail owns the first chromeWidth - 1 columns; the final column stays a
+	// space so the body begins one column in, exactly like the original rail.
+	const railCell = transparent
+		? rail.repeat(Math.max(0, chromeWidth - 1))
+		: applyOwnedSurfaceBackground(uiTheme, rail.repeat(Math.max(0, chromeWidth - 1)));
 	const surface = rows.map((line) => {
-		const railCell = transparent ? rail : applyOwnedSurfaceBackground(uiTheme, rail);
-		const bodyText = ` ${fillTerminalLine(line, contentWidth)}`;
+		const bodyText = ` ${fillTerminalLine(line, contentWidth + 1)}`;
 		const body = transparent ? bodyText : applyOwnedSurfaceBackground(uiTheme, bodyText);
 		return `${railCell}${body}`;
 	});
