@@ -142,11 +142,11 @@ describe("editor mouse capability and delegation", () => {
 			() => "off",
 		);
 		const rows = editor.render(60);
-		expect(rows).toHaveLength(3);
+		expect(rows).toHaveLength(5);
 		const quota = cell(rows, "5h");
 		const completion = cell(rows, "completion");
-		expect(quota.y).toBe(1);
-		expect(completion.y).toBe(2);
+		expect(quota.y).toBe(3);
+		expect(completion.y).toBe(4);
 		mouse(editor, event(completion.x, completion.y, 60, rows.length));
 		expect(handleMouse).toHaveBeenLastCalledWith(
 			expect.objectContaining({ y: 3, width: 58, height: 4 }),
@@ -156,8 +156,8 @@ describe("editor mouse capability and delegation", () => {
 		expect(handleMouse).not.toHaveBeenCalled();
 		expect(editor.getText()).toBe("draft");
 		completing = false;
-		// Two owned rows, not the special padded one-row rail geometry.
-		expect(editor.render(60)).toHaveLength(2);
+		// The text keeps its reserved buffer rows around the quota row.
+		expect(editor.render(60)).toHaveLength(4);
 		cfg.components.editor.codexQuota = false;
 		expect(editor.render(60)).toHaveLength(3);
 	});

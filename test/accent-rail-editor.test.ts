@@ -65,6 +65,30 @@ describe("accent rail editor frame", () => {
 		}
 	});
 
+	it("keeps blank buffer rows above and below multi-line input when padding is requested", () => {
+		const rows = renderAccentRailEditorFrame({
+			width: 20,
+			editorLines: ["Ask anything", "continuation", "third"],
+			autocompleteLines: ["→ pick"],
+			padText: true,
+			uiTheme: theme(),
+			config: config(),
+		});
+
+		expect(rows.map(plain)).toEqual([
+			"▎                   ",
+			"▎ Ask anything      ",
+			"▎ continuation      ",
+			"▎ third             ",
+			"▎                   ",
+			"▎ pick              ",
+		]);
+		for (const row of rows) {
+			expect(visibleWidth(row)).toBe(20);
+			expect(row).toContain("\x1b[48;5;234m");
+		}
+	});
+
 	it("fills autocomplete and replaces only the native selected prefix", () => {
 		const selected = "\x1b[38;5;39m→ settings\x1b[0m";
 		const unusual = "\x1b]8;;https://example.com\x07→ linked\x1b]8;;\x07";
@@ -260,6 +284,35 @@ describe("accent rail editor frame metadata and rail width", () => {
 			setText() {},
 		};
 	}
+
+	it("keeps the reserved rail block around multi-line input", () => {
+		const editor = new WrappedPolishedEditor(
+			{
+				render: (width: number) => [
+					"─".repeat(width),
+					"first",
+					"second",
+					"─".repeat(width),
+				],
+				invalidate() {},
+				handleInput() {},
+				getText: () => "first\nsecond",
+				setText() {},
+			} as never,
+			theme(),
+			() => railConfig(),
+			() => ({ modelLabel: "sonnet-4", providerLabel: "anthropic" }),
+			() => "high",
+		);
+		const rows = editor.render(28).map(plain);
+		expect(rows).toEqual([
+			"  sonnet-4  anthropic  high",
+			"▎                           ",
+			"▎ first                     ",
+			"▎ second                    ",
+			"▎                           ",
+		]);
+	});
 
 	it("renders the metadata row as plain text above the reserved rail block when it fits", () => {
 		const editor = new WrappedPolishedEditor(

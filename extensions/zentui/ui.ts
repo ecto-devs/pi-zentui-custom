@@ -886,12 +886,10 @@ function renderAccentRailFrameFromBase({
 	const below = config.components.editor.viewportIndicators
 		? accentRailViewportLabel("below", viewport.below)
 		: undefined;
-	// A lone input row with nothing else around it gets a reserved blank row on
-	// each side, rendered as part of the rail surface itself (see
+	// The live frame always reserves a blank rail row on each side of the text,
+	// rendered as part of the rail surface itself (see
 	// renderAccentRailEditorFrame). The metadata row, when visible, is plain
 	// text with no rail/background and always sits above that block.
-	const padded =
-		!above && !below && !quotaVisible && editorLines.length === 1 && autocompleteLines.length === 0;
 	const infoVisible = Boolean(metadata && visibleWidth(metadata) + chromeWidth <= width);
 	const renderedLines = renderAccentRailEditorFrame({
 		codexQuota,
@@ -901,13 +899,13 @@ function renderAccentRailFrameFromBase({
 		viewport,
 		uiTheme,
 		config,
-		padSingleLine: true,
+		padText: true,
 	});
 	const lines = infoVisible
 		? [" ".repeat(chromeWidth) + metadata, ...renderedLines]
 		: renderedLines;
 	if (frame.nativeStatusLine !== undefined) lines.unshift(frame.nativeStatusLine);
-	const bodyStart = (padded ? 1 : 0) + (infoVisible ? 1 : 0) + (above ? 1 : 0);
+	const bodyStart = 1 + (infoVisible ? 1 : 0) + (above ? 1 : 0);
 	rememberNormalizedMouseLayout(lines, baseRendered, frame, {
 		body: editorMouseCells(editorLines.length, chromeWidth, bodyStart),
 		completion: editorMouseCells(
@@ -915,6 +913,7 @@ function renderAccentRailFrameFromBase({
 			0,
 			bodyStart +
 				editorLines.length +
+				1 +
 				(quotaVisible ? 1 : 0) +
 				(config.components.editor.viewportIndicators && viewport.below ? 1 : 0),
 		),

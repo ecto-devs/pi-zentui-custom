@@ -1065,10 +1065,10 @@ describe("accent rail editor integration", () => {
 			style: "accent-rail",
 		});
 		const lines = editor.render(24);
-		expect(lines).toHaveLength(3);
-		expect(lines[0]).toMatch(/^▎ typed text/);
+		expect(lines).toHaveLength(5);
+		expect(lines[1]).toMatch(/^▎ typed text/);
 		expect(lines.every((line) => visibleWidth(line) === 24)).toBe(true);
-		expect(lines.slice(1).map((line) => line.trimEnd())).toEqual(["one", "two"]);
+		expect(lines.slice(3).map((line) => line.trimEnd())).toEqual(["one", "two"]);
 	});
 
 	it("places one reserved row on each side of a one-row rail", () => {

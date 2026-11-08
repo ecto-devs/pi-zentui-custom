@@ -33,11 +33,12 @@ export type AccentRailEditorFrameOptions = {
 	uiTheme: Theme;
 	config: ZentuiConfig;
 	/**
-	 * Reserve a blank rail row on each side of a lone input line (rendered
-	 * through the same surface as the text) so the block always reads as a
-	 * 3-row-tall rail. Off by default to keep pure/preview renders tight.
+	 * Reserve a blank rail row on each side of the input text (rendered through
+	 * the same surface as the text) so the block always keeps visual buffer
+	 * space above and below the text, no matter how many lines it holds.
+	 * Off by default to keep pure/preview renders tight.
 	 */
-	padSingleLine?: boolean;
+	padText?: boolean;
 };
 
 export function accentRailChromeWidth(config: ZentuiConfig): number {
@@ -70,7 +71,7 @@ export function renderAccentRailEditorFrame({
 	viewport = {},
 	uiTheme,
 	config,
-	padSingleLine = false,
+	padText = false,
 }: AccentRailEditorFrameOptions): string[] {
 	const chromeWidth = accentRailChromeWidth(config);
 	if (width < chromeWidth + 1) {
@@ -96,17 +97,9 @@ export function renderAccentRailEditorFrame({
 		: undefined;
 	const quota = renderCodexQuota(codexQuota, uiTheme, config, "editor");
 	const quotaVisible = Boolean(quota && visibleWidth(quota) <= contentWidth);
-	// A lone input row with nothing else around it keeps a reserved blank row
-	// on each side, rendered through the same rail/surface treatment as the
-	// text itself so the whole 3-row block reads as one continuous rail.
-	const padded =
-		padSingleLine &&
-		!above &&
-		!below &&
-		!quotaVisible &&
-		editorLines.length === 1 &&
-		autocompleteLines.length === 0;
-	const paddedEditorLines = padded ? ["", ...editorLines, ""] : editorLines;
+	// Reserved blank rows sit between the viewport/quota rows and the text so
+	// the block always reads as one continuous rail with buffer space.
+	const paddedEditorLines = padText ? ["", ...editorLines, ""] : editorLines;
 	const rows = [
 		...(above ? [above] : []),
 		...paddedEditorLines,
