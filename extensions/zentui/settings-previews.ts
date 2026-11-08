@@ -126,6 +126,7 @@ export function renderEditorSettingsPreview(
 			viewport,
 			uiTheme: theme,
 			config: safeConfig,
+			thinkingLevel: "high",
 		});
 		frame = metadata ? [" ".repeat(accentRailChromeWidth(safeConfig)) + metadata, ...rows] : rows;
 	} else if (editor.style === "minimalist") {

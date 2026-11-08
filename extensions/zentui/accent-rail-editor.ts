@@ -9,6 +9,7 @@ import {
 } from "./completion-menu.ts";
 import { componentColor } from "./component-colors.ts";
 import type { ZentuiConfig } from "./config.ts";
+import { editorThinkingStyle } from "./editor-metadata-format.ts";
 import { resolveAccentRailGlyph } from "./rail-glyph.ts";
 import { renderStyleForSourceOrFallback, type SourceStyleFallback } from "./style.ts";
 
@@ -17,6 +18,16 @@ export const ACCENT_RAIL_CHROME_WIDTH = 2;
 const ACCENT_RAIL_FALLBACK: SourceStyleFallback = {
 	theme: "syntaxNumber",
 	terminal: "fg:215",
+};
+
+/** Heat-scale rail colors while a thinking level is active (mirrors Minimalist). */
+const ACCENT_RAIL_THINKING_FALLBACKS: Record<string, SourceStyleFallback> = {
+	minimal: { theme: "thinkingMinimal", terminal: "bright-black" },
+	low: { theme: "thinkingLow", terminal: "blue" },
+	medium: { theme: "thinkingMedium", terminal: "cyan" },
+	high: { theme: "thinkingHigh", terminal: "yellow" },
+	xhigh: { theme: "thinkingXhigh", terminal: "red" },
+	max: { theme: "thinkingMax", terminal: "bright-red" },
 };
 
 export type AccentRailViewport = {
@@ -39,6 +50,11 @@ export type AccentRailEditorFrameOptions = {
 	 * Off by default to keep pure/preview renders tight.
 	 */
 	padText?: boolean;
+	/**
+	 * Active thinking level. When set (and not "off") the rail glyph takes the
+	 * level's thinking color; otherwise the configured rail color applies.
+	 */
+	thinkingLevel?: string;
 };
 
 export function accentRailChromeWidth(config: ZentuiConfig): number {
@@ -72,6 +88,7 @@ export function renderAccentRailEditorFrame({
 	uiTheme,
 	config,
 	padText = false,
+	thinkingLevel,
 }: AccentRailEditorFrameOptions): string[] {
 	const chromeWidth = accentRailChromeWidth(config);
 	if (width < chromeWidth + 1) {
@@ -82,13 +99,23 @@ export function renderAccentRailEditorFrame({
 	// stays a space so the body begins one column in, exactly like the original
 	// rail. Usable body text width is the space column plus what follows it.
 	const contentWidth = Math.max(0, width - chromeWidth - 1);
-	const rail = renderStyleForSourceOrFallback(
-		uiTheme,
-		config.components.editor.colorSource,
-		componentColor(config, "editor", "rail"),
-		ACCENT_RAIL_FALLBACK,
-		selectedRail(config),
-	);
+	const activeThinking =
+		thinkingLevel && thinkingLevel.toLowerCase() !== "off" ? thinkingLevel : "";
+	const rail = activeThinking
+		? renderStyleForSourceOrFallback(
+				uiTheme,
+				config.components.editor.colorSource,
+				editorThinkingStyle(config, activeThinking),
+				ACCENT_RAIL_THINKING_FALLBACKS[activeThinking.toLowerCase()] ?? ACCENT_RAIL_FALLBACK,
+				selectedRail(config),
+			)
+		: renderStyleForSourceOrFallback(
+				uiTheme,
+				config.components.editor.colorSource,
+				componentColor(config, "editor", "rail"),
+				ACCENT_RAIL_FALLBACK,
+				selectedRail(config),
+			);
 	const above = config.components.editor.viewportIndicators
 		? viewportLabel("above", viewport.above)
 		: undefined;

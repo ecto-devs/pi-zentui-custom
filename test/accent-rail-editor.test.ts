@@ -235,6 +235,57 @@ describe("accent rail editor frame", () => {
 		expect(overrideCalls).not.toContainEqual({ color: "error", text: "▎" });
 	});
 
+	it("colors the rail glyph with the active thinking level", () => {
+		const themeCalls: Array<{ color: string; text: string }> = [];
+		renderAccentRailEditorFrame({
+			width: 10,
+			editorLines: ["draft"],
+			uiTheme: theme(themeCalls),
+			config: config(),
+			thinkingLevel: "high",
+		});
+		expect(themeCalls).toContainEqual({ color: "thinkingHigh", text: "▎" });
+	});
+
+	it("uses the terminal thinking heat scale for the rail glyph", () => {
+		const terminal = config();
+		terminal.components.editor.colorSource = "terminal";
+		const [row] = renderAccentRailEditorFrame({
+			width: 10,
+			editorLines: ["draft"],
+			uiTheme: theme(),
+			config: terminal,
+			thinkingLevel: "high",
+		});
+		expect(row).toContain("\x1b[33m▎\x1b[0m");
+	});
+
+	it("lets a thinking-level color override win over the rail color", () => {
+		const overrideCalls: Array<{ color: string; text: string }> = [];
+		const independent = config({ editorRail: "success", editorThinkingHigh: "warning" });
+		renderAccentRailEditorFrame({
+			width: 10,
+			editorLines: ["draft"],
+			uiTheme: theme(overrideCalls),
+			config: independent,
+			thinkingLevel: "high",
+		});
+		expect(overrideCalls).toContainEqual({ color: "warning", text: "▎" });
+		expect(overrideCalls).not.toContainEqual({ color: "success", text: "▎" });
+	});
+
+	it("keeps the default rail color while thinking is off", () => {
+		const themeCalls: Array<{ color: string; text: string }> = [];
+		renderAccentRailEditorFrame({
+			width: 10,
+			editorLines: ["draft"],
+			uiTheme: theme(themeCalls),
+			config: config(),
+			thinkingLevel: "off",
+		});
+		expect(themeCalls).toContainEqual({ color: "syntaxNumber", text: "▎" });
+	});
+
 	it("removes only owned backgrounds in transparent mode", () => {
 		const current = config();
 		current.components.editor.styles["accent-rail"].transparent = true;
@@ -286,32 +337,30 @@ describe("accent rail editor frame metadata and rail width", () => {
 	}
 
 	it("keeps the reserved rail block around multi-line input", () => {
+		const themeCalls: Array<{ color: string; text: string }> = [];
 		const editor = new WrappedPolishedEditor(
 			{
-				render: (width: number) => [
-					"─".repeat(width),
-					"first",
-					"second",
-					"─".repeat(width),
-				],
+				render: (width: number) => ["─".repeat(width), "first", "second", "─".repeat(width)],
 				invalidate() {},
 				handleInput() {},
 				getText: () => "first\nsecond",
 				setText() {},
 			} as never,
-			theme(),
+			theme(themeCalls),
 			() => railConfig(),
 			() => ({ modelLabel: "sonnet-4", providerLabel: "anthropic" }),
 			() => "high",
 		);
-		const rows = editor.render(28).map(plain);
-		expect(rows).toEqual([
+		const rows = editor.render(28);
+		expect(rows.map(plain)).toEqual([
 			"  sonnet-4  anthropic  high",
 			"▎                           ",
 			"▎ first                     ",
 			"▎ second                    ",
 			"▎                           ",
 		]);
+		// The rail glyph follows the active thinking level (high).
+		expect(themeCalls).toContainEqual({ color: "thinkingHigh", text: "▎" });
 	});
 
 	it("renders the metadata row as plain text above the reserved rail block when it fits", () => {

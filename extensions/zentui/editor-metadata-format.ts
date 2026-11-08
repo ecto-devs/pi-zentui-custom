@@ -148,7 +148,7 @@ export function sanitizeEditorMetadataText(value: string): string {
 	return sanitized;
 }
 
-function editorThinkingStyle(config: ZentuiConfig, level: string): string | undefined {
+export function editorThinkingStyle(config: ZentuiConfig, level: string): string | undefined {
 	switch (level.toLowerCase()) {
 		case "minimal":
 			return (

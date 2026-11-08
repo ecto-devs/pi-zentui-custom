@@ -183,6 +183,8 @@ type AccentRailFrameAdapterOptions = {
 	config: ZentuiConfig;
 	ownedFrame?: PolishedFrameSplit;
 	trustedBaseFrame?: boolean;
+	/** Active thinking level; colors the rail glyph while set (not "off"). */
+	thinkingLevel?: string;
 };
 
 type MinimalistFrameAdapterOptions = {
@@ -859,6 +861,7 @@ function renderAccentRailFrameFromBase({
 	config,
 	ownedFrame,
 	trustedBaseFrame = false,
+	thinkingLevel,
 }: AccentRailFrameAdapterOptions): PolishedFrameResult {
 	const chromeWidth = accentRailChromeWidth(config);
 	if (width < chromeWidth + 1) {
@@ -900,6 +903,7 @@ function renderAccentRailFrameFromBase({
 		uiTheme,
 		config,
 		padText: true,
+		thinkingLevel,
 	});
 	const lines = infoVisible
 		? [" ".repeat(chromeWidth) + metadata, ...renderedLines]
@@ -1385,6 +1389,7 @@ export class PolishedEditor extends CustomEditor {
 					uiTheme: this.uiTheme,
 					config,
 					trustedBaseFrame: true,
+					thinkingLevel: this.getThinkingLevel(),
 				});
 				if (result.decorated) return result.lines;
 			} catch {
@@ -1702,6 +1707,7 @@ export class WrappedPolishedEditor implements EditorComponent {
 						uiTheme: this.uiTheme,
 						config,
 						ownedFrame: provenance.ownedFrame,
+						thinkingLevel: this.getThinkingLevel(),
 					});
 					if (result.decorated) return result.lines;
 				}
