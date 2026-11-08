@@ -105,7 +105,7 @@ describe("accent rail editor frame", () => {
 			"  files             ",
 			"→ linked            ",
 		]);
-		expect(rows[1]).toContain("\x1b[38;5;215m▎\x1b[39m \x1b[38;5;39msettings");
+		expect(rows[1]).toContain("\x1b[38;5;242m▎\x1b[0m\x1b[48;5;234m \x1b[38;5;39msettings");
 		for (const row of rows.slice(1)) {
 			expect(row).toContain("\x1b[48;5;234m");
 			expect(visibleWidth(row)).toBe(20);
@@ -123,7 +123,7 @@ describe("accent rail editor frame", () => {
 			uiTheme: theme(),
 			config: config(),
 		});
-		expect(rows[1]).toContain("\x1b[38;5;215m▎\x1b[39m \u009b38;5;39msettings\u009b0m");
+		expect(rows[1]).toContain("\x1b[38;5;242m▎\x1b[0m\x1b[48;5;234m \u009b38;5;39msettings\u009b0m");
 		expect(rows[2]).toContain(erased);
 		expect(plain(rows[2] ?? "")).toContain("→ unsafe");
 		expect(rows[3]).toContain(c1Erased);
@@ -200,15 +200,14 @@ describe("accent rail editor frame", () => {
 		expect(rows.map(plain)).toEqual(["! draft   ", "! pick    "]);
 	});
 
-	it("uses source-specific rail defaults and an explicit editor-only override", () => {
-		const themeCalls: Array<{ color: string; text: string }> = [];
-		renderAccentRailEditorFrame({
+	it("uses the fixed grey rail default and an explicit editor-only override", () => {
+		const [themeRow] = renderAccentRailEditorFrame({
 			width: 10,
 			editorLines: ["draft"],
-			uiTheme: theme(themeCalls),
+			uiTheme: theme(),
 			config: config(),
 		});
-		expect(themeCalls).toContainEqual({ color: "syntaxNumber", text: "▎" });
+		expect(themeRow).toContain("\x1b[38;5;242m▎\x1b[0m");
 
 		const terminal = config();
 		terminal.components.editor.colorSource = "terminal";
@@ -218,7 +217,7 @@ describe("accent rail editor frame", () => {
 			uiTheme: theme(),
 			config: terminal,
 		});
-		expect(terminalRow).toContain("\x1b[38;5;215m▎\x1b[0m");
+		expect(terminalRow).toContain("\x1b[38;5;242m▎\x1b[0m");
 
 		const overrideCalls: Array<{ color: string; text: string }> = [];
 		const independent = config({ editorRail: "success", editorAccent: "error" });
@@ -283,16 +282,15 @@ describe("accent rail editor frame", () => {
 		expect(overrideCalls).not.toContainEqual({ color: "success", text: "▎" });
 	});
 
-	it("keeps the default rail color while thinking is off", () => {
-		const themeCalls: Array<{ color: string; text: string }> = [];
-		renderAccentRailEditorFrame({
+	it("keeps the grey rail color while thinking is off", () => {
+		const [row] = renderAccentRailEditorFrame({
 			width: 10,
 			editorLines: ["draft"],
-			uiTheme: theme(themeCalls),
+			uiTheme: theme(),
 			config: config(),
 			thinkingLevel: "off",
 		});
-		expect(themeCalls).toContainEqual({ color: "syntaxNumber", text: "▎" });
+		expect(row).toContain("\x1b[38;5;242m▎\x1b[0m");
 	});
 
 	it("removes only owned backgrounds in transparent mode", () => {

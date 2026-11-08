@@ -15,9 +15,10 @@ import { renderStyleForSourceOrFallback, type SourceStyleFallback } from "./styl
 
 export const ACCENT_RAIL_CHROME_WIDTH = 2;
 
+// Neutral grey while thinking is off, the coldest end of the heat scale.
 const ACCENT_RAIL_FALLBACK: SourceStyleFallback = {
-	theme: "syntaxNumber",
-	terminal: "fg:215",
+	theme: "fg:242",
+	terminal: "fg:242",
 };
 
 /**
