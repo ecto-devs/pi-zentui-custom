@@ -20,14 +20,18 @@ const ACCENT_RAIL_FALLBACK: SourceStyleFallback = {
 	terminal: "fg:215",
 };
 
-/** Heat-scale rail colors while a thinking level is active (mirrors Minimalist). */
+/**
+ * Fixed heat-scale rail colors while a thinking level is active. Explicit
+ * terminal values are honored verbatim in both color sources, so the rail
+ * stays theme-independent; per-level config overrides still win.
+ */
 const ACCENT_RAIL_THINKING_FALLBACKS: Record<string, SourceStyleFallback> = {
-	minimal: { theme: "thinkingMinimal", terminal: "bright-black" },
-	low: { theme: "thinkingLow", terminal: "blue" },
-	medium: { theme: "thinkingMedium", terminal: "cyan" },
-	high: { theme: "thinkingHigh", terminal: "yellow" },
-	xhigh: { theme: "thinkingXhigh", terminal: "red" },
-	max: { theme: "thinkingMax", terminal: "bright-red" },
+	minimal: { theme: "fg:242", terminal: "fg:242" },
+	low: { theme: "fg:150", terminal: "fg:150" },
+	medium: { theme: "fg:215", terminal: "fg:215" },
+	high: { theme: "fg:209", terminal: "fg:209" },
+	xhigh: { theme: "fg:1", terminal: "fg:1" },
+	max: { theme: "fg:9", terminal: "fg:9" },
 };
 
 export type AccentRailViewport = {
