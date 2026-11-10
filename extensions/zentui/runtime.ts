@@ -222,7 +222,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "xmake",
 		symbol: "",
-		style: "bold green",
+		style: "",
 		priority: PRIORITY_BUILD_SYSTEM,
 		detect: { files: ["xmake.lua"] },
 		version: versionFromCommands([{ command: "xmake", args: ["--version"] }]),
@@ -230,7 +230,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "maven",
 		symbol: "",
-		style: "bold bright-cyan",
+		style: "",
 		priority: PRIORITY_BUILD_SYSTEM,
 		detect: { files: ["pom.xml"] },
 		version: versionFromCommands([
@@ -240,7 +240,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "gradle",
 		symbol: "",
-		style: "bold bright-cyan",
+		style: "",
 		priority: PRIORITY_BUILD_SYSTEM,
 		detect: { files: ["build.gradle", "build.gradle.kts"], folders: ["gradle"] },
 		version: versionFromCommands([
@@ -250,7 +250,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "bun",
 		symbol: "",
-		style: "bold red",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: { files: ["bun.lock", "bun.lockb"] },
 		version: async (cwd) => prefixVersion(await runVersion("bun", ["--version"], cwd)),
@@ -258,7 +258,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "deno",
 		symbol: "",
-		style: "green bold",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: { files: ["deno.json", "deno.jsonc", "deno.lock"] },
 		version: async (cwd) =>
@@ -267,7 +267,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "lua",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: {
 			extensions: ["lua"],
@@ -294,7 +294,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "nodejs",
 		symbol: "",
-		style: "bold green",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: {
 			files: ["package.json", ".node-version", ".nvmrc"],
@@ -305,7 +305,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "python",
 		symbol: "",
-		style: "yellow bold",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: {
 			files: [
@@ -329,7 +329,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "golang",
 		symbol: "",
-		style: "bold cyan",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: { files: ["go.mod"] },
 		version: async (cwd) =>
@@ -338,7 +338,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "rust",
 		symbol: "󱘗",
-		style: "bold red",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: { files: ["Cargo.toml"] },
 		version: async (cwd) =>
@@ -347,7 +347,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "java",
 		symbol: "",
-		style: "red dimmed",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: { files: [".java-version"] },
 		version: async (cwd) => {
@@ -361,7 +361,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "ruby",
 		symbol: "",
-		style: "bold red",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: { files: ["Gemfile", ".ruby-version"] },
 		version: async (cwd) =>
@@ -370,7 +370,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "php",
 		symbol: "",
-		style: "147 bold",
+		style: "",
 		priority: PRIORITY_COMMON,
 		detect: { files: ["composer.json"] },
 		version: async (cwd) =>
@@ -379,7 +379,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "buf",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { files: ["buf.yaml", "buf.gen.yaml", "buf.work.yaml"] },
 		version: versionFromCommands([{ command: "buf", args: ["--version"] }]),
@@ -387,7 +387,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "cmake",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { files: ["CMakeLists.txt", "CMakeCache.txt"] },
 		version: versionFromCommands([{ command: "cmake", args: ["--version"] }]),
@@ -395,7 +395,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "cpp",
 		symbol: "",
-		style: "bold 149",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["cpp", "cc", "cxx", "c++", "hpp", "hh", "hxx", "h++", "tcc"] },
 		version: versionFromCommands([
@@ -407,7 +407,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "c",
 		symbol: "",
-		style: "bold 149",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["c", "h"] },
 		version: versionFromCommands([
@@ -419,7 +419,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "cobol",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["cbl", "cob", "CBL", "COB"] },
 		version: versionFromCommands([{ command: "cobc", args: ["--version"] }]),
@@ -427,7 +427,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "conda",
 		symbol: "",
-		style: "bold green",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { env: (env) => Boolean(env.CONDA_DEFAULT_ENV?.trim()) && !env.PIXI_ENVIRONMENT_NAME },
 		version: noVersion,
@@ -435,7 +435,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "crystal",
 		symbol: "",
-		style: "bold red",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["cr"], files: ["shard.yml"] },
 		version: versionFromCommands([{ command: "crystal", args: ["--version"] }]),
@@ -443,7 +443,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "dart",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			extensions: ["dart"],
@@ -455,7 +455,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "dotnet",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			extensions: ["csproj", "fsproj", "xproj"],
@@ -472,7 +472,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "elixir",
 		symbol: "",
-		style: "bold purple",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { files: ["mix.exs"] },
 		version: versionFromCommands([
@@ -482,7 +482,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "elm",
 		symbol: "",
-		style: "cyan bold",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			extensions: ["elm"],
@@ -494,7 +494,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "erlang",
 		symbol: "",
-		style: "bold red",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { files: ["rebar.config", "erlang.mk"] },
 		version: versionFromCommands([{ command: "erl", args: ["-version"] }]),
@@ -502,7 +502,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "fennel",
 		symbol: "",
-		style: "bold green",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["fnl"] },
 		version: versionFromCommands([{ command: "fennel", args: ["--version"] }]),
@@ -510,7 +510,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "fortran",
 		symbol: "",
-		style: "bold purple",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			extensions: [
@@ -544,7 +544,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "gleam",
 		symbol: "",
-		style: "bold #FFAFF3",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["gleam"], files: ["gleam.toml"] },
 		version: versionFromCommands([{ command: "gleam", args: ["--version"] }]),
@@ -552,7 +552,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "guix_shell",
 		symbol: "",
-		style: "yellow bold",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { env: (env) => Boolean(env.GUIX_ENVIRONMENT?.trim()) },
 		version: noVersion,
@@ -560,7 +560,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "haskell",
 		symbol: "",
-		style: "bold purple",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["hs", "cabal", "hs-boot"], files: ["stack.yaml", "cabal.project"] },
 		version: versionFromCommands([{ command: "ghc", args: ["--numeric-version"] }]),
@@ -568,7 +568,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "haxe",
 		symbol: "",
-		style: "bold fg:202",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			extensions: ["hx", "hxml"],
@@ -580,7 +580,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "helm",
 		symbol: "",
-		style: "bold white",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { files: ["helmfile.yaml", "Chart.yaml"] },
 		version: versionFromCommands([{ command: "helm", args: ["version", "--short"] }]),
@@ -588,7 +588,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "julia",
 		symbol: "",
-		style: "bold purple",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["jl"], files: ["Project.toml", "Manifest.toml"] },
 		version: versionFromCommands([{ command: "julia", args: ["--version"] }]),
@@ -596,7 +596,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "kotlin",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["kt", "kts"] },
 		version: versionFromCommands([{ command: "kotlin", args: ["-version"] }]),
@@ -604,7 +604,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "meson",
 		symbol: "󰔷",
-		style: "blue bold",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { env: (env) => env.MESON_DEVENV === "1" && Boolean(env.MESON_PROJECT_NAME?.trim()) },
 		version: noVersion,
@@ -612,7 +612,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "mojo",
 		symbol: "󰈸",
-		style: "bold 208",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["mojo", "🔥"] },
 		version: versionFromCommands([{ command: "mojo", args: ["--version"] }]),
@@ -620,7 +620,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "nim",
 		symbol: "",
-		style: "bold yellow",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["nim", "nims", "nimble"], files: ["nim.cfg"] },
 		version: versionFromCommands([{ command: "nim", args: ["--version"] }]),
@@ -628,7 +628,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "nix_shell",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { env: (env) => env.IN_NIX_SHELL === "pure" || env.IN_NIX_SHELL === "impure" },
 		version: noVersion,
@@ -636,7 +636,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "ocaml",
 		symbol: "",
-		style: "bold yellow",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			extensions: ["opam", "ml", "mli", "re", "rei"],
@@ -648,7 +648,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "odin",
 		symbol: "󰟢",
-		style: "bold bright-blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["odin"] },
 		version: versionFromCommands([{ command: "odin", args: ["version"] }]),
@@ -656,7 +656,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "opa",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["rego"] },
 		version: versionFromCommands([{ command: "opa", args: ["version"] }]),
@@ -664,7 +664,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "perl",
 		symbol: "",
-		style: "bold 149",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			extensions: ["pl", "pm", "pod"],
@@ -683,7 +683,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "pixi",
 		symbol: "󰏗",
-		style: "yellow bold",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			files: ["pixi.toml", "pixi.lock"],
@@ -694,7 +694,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "pulumi",
 		symbol: "",
-		style: "bold 5",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { files: ["Pulumi.yaml", "Pulumi.yml"] },
 		version: versionFromCommands([{ command: "pulumi", args: ["version"] }]),
@@ -702,7 +702,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "purescript",
 		symbol: "",
-		style: "bold white",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["purs"], files: ["spago.dhall", "spago.yaml", "spago.lock"] },
 		version: versionFromCommands([{ command: "purs", args: ["--version"] }]),
@@ -710,7 +710,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "raku",
 		symbol: "󱖊",
-		style: "bold 149",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["p6", "pm6", "pod6", "raku", "rakumod"], files: ["META6.json"] },
 		version: versionFromCommands([{ command: "raku", args: ["--version"] }]),
@@ -718,7 +718,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "red",
 		symbol: "󱍼",
-		style: "red bold",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["red", "reds"] },
 		version: versionFromCommands([{ command: "red", args: ["--version"] }]),
@@ -726,7 +726,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "rlang",
 		symbol: "󰟔",
-		style: "blue bold",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			extensions: ["R", "Rd", "Rmd", "Rproj", "Rsx"],
@@ -738,7 +738,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "scala",
 		symbol: "",
-		style: "red dimmed",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: {
 			extensions: ["sbt", "scala"],
@@ -750,7 +750,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "solidity",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["sol"] },
 		version: versionFromCommands([{ command: "solc", args: ["--version"] }]),
@@ -758,7 +758,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "spack",
 		symbol: "",
-		style: "bold blue",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { env: (env) => Boolean(env.SPACK_ENV?.trim()) },
 		version: noVersion,
@@ -766,7 +766,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "swift",
 		symbol: "",
-		style: "bold 202",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["swift"], files: ["Package.swift"] },
 		version: versionFromCommands([
@@ -776,7 +776,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "terraform",
 		symbol: "",
-		style: "bold 105",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["tf", "tfplan", "tfstate"], folders: [".terraform"] },
 		version: versionFromCommands([
@@ -787,7 +787,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "typst",
 		symbol: "",
-		style: "bold #0093A7",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["typ"], files: ["template.typ"] },
 		version: versionFromCommands([{ command: "typst", args: ["--version"] }]),
@@ -795,7 +795,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "vagrant",
 		symbol: "",
-		style: "cyan bold",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { files: ["Vagrantfile"] },
 		version: versionFromCommands([{ command: "vagrant", args: ["--version"] }]),
@@ -803,7 +803,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "vlang",
 		symbol: "",
-		style: "blue bold",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["v"], files: ["v.mod", "vpkg.json", ".vpkg-lock.json"] },
 		version: versionFromCommands([{ command: "v", args: ["version"] }]),
@@ -811,7 +811,7 @@ const runtimes: RuntimeDef[] = [
 	{
 		name: "zig",
 		symbol: "",
-		style: "bold yellow",
+		style: "",
 		priority: PRIORITY_DEFAULT,
 		detect: { extensions: ["zig"], files: ["build.zig"] },
 		version: versionFromCommands([{ command: "zig", args: ["version"] }]),

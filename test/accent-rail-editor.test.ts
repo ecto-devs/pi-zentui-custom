@@ -123,7 +123,9 @@ describe("accent rail editor frame", () => {
 			uiTheme: theme(),
 			config: config(),
 		});
-		expect(rows[1]).toContain("\x1b[38;5;242m▎\x1b[0m\x1b[48;5;234m \u009b38;5;39msettings\u009b0m");
+		expect(rows[1]).toContain(
+			"\x1b[38;5;242m▎\x1b[0m\x1b[48;5;234m \u009b38;5;39msettings\u009b0m",
+		);
 		expect(rows[2]).toContain(erased);
 		expect(plain(rows[2] ?? "")).toContain("→ unsafe");
 		expect(rows[3]).toContain(c1Erased);

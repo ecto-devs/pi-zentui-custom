@@ -207,10 +207,11 @@ describe("typed component color inheritance", () => {
 	});
 	it("retains aliases and does not feed generated Footer branch defaults to Minimalist", () => {
 		const config = mergeConfig({});
-		expect(componentColor(config, "footer", "gitBranch")).toBe("bold purple");
+		expect(componentColor(config, "footer", "gitBranch")).toBe("");
 		expect(componentColor(config, "editor", "gitBranch")).toBeUndefined();
 		const aliases = mergeConfig({ colors: { cwdText: "", git: "red" } });
-		expect(componentColor(aliases, "editor", "cwd")).toBe("");
+		// An unstyled shared value falls back to the Editor's canonical default.
+		expect(componentColor(aliases, "editor", "cwd")).toBe("bold cyan");
 		expect(componentColor(aliases, "editor", "gitBranch")).toBe("red");
 		expect(
 			componentColor(
@@ -243,11 +244,22 @@ describe("typed component color inheritance", () => {
 			);
 			expect(config.colors).toEqual(before.colors);
 		});
-		it.each(owners)("switches only $owner's source with distinguishable defaults", (owner) => {
+		it.each(owners.filter((owner) => owner !== "footer"))(
+			"switches only $owner's source with distinguishable defaults",
+			(owner) => {
+				const before = base(source);
+				const config = base(source);
+				config.components[owner].colorSource = source === "theme" ? "terminal" : "theme";
+				assertOnlyOwnerChanged(before, config, owner);
+			},
+		);
+		it("keeps the Footer identical across sources while defaults are unstyled", () => {
 			const before = base(source);
 			const config = base(source);
-			config.components[owner].colorSource = source === "theme" ? "terminal" : "theme";
-			assertOnlyOwnerChanged(before, config, owner);
+			config.components.footer.colorSource = source === "theme" ? "terminal" : "theme";
+			for (const surface of owners) {
+				expect(renderers[surface](config), surface).toEqual(renderers[surface](before));
+			}
 		});
 		it.each(cases.filter(({ owner }) => owner !== "selectorBorders"))(
 			"renders $owner identically with historical and local $style",

@@ -484,7 +484,7 @@ export function installFooter(
 				const statusBlock = isUpToDate
 					? [
 							allStatus.trim() ? gitStatusColor(allStatus.trim()) : "",
-							renderStyleForSource(theme, colorSource, "green", ""),
+							renderStyleForSource(theme, colorSource, "", ""),
 						]
 							.filter(Boolean)
 							.join(" ")

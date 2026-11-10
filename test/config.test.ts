@@ -1581,15 +1581,16 @@ describe("mergeConfig", () => {
 		expect(config.projectRefreshIntervalMs).toBe(30_000);
 		expect(config.icons).toMatchObject({ mode: "auto", effectiveMode: "ascii", cacheHit: "c" });
 		expect(config.icons.editorPrompt).toBe("");
-		expect(config.colors.gitBranch).toBe("bold purple");
-		expect(config.colors.packageVersion).toBe("208");
-		expect(config.colors.gitCommit).toBe("bold green");
-		expect(config.colors.gitMetricsAdded).toBe("bold green");
-		expect(config.colors.gitMetricsDeleted).toBe("bold red");
-		expect(config.colors.sessionName).toBe("bold green");
-		expect(config.colors.contextNormal).toBe("bright-black");
-		expect(config.colors.tokens).toBe("bright-black");
-		expect(config.colors.extensionStatus).toBe("bright-black");
+		// No defined colors: every footer element defaults to the system theme.
+		expect(config.colors.gitBranch).toBe("");
+		expect(config.colors.packageVersion).toBe("");
+		expect(config.colors.gitCommit).toBe("");
+		expect(config.colors.gitMetricsAdded).toBe("");
+		expect(config.colors.gitMetricsDeleted).toBe("");
+		expect(config.colors.sessionName).toBe("");
+		expect(config.colors.contextNormal).toBe("");
+		expect(config.colors.tokens).toBe("");
+		expect(config.colors.extensionStatus).toBe("");
 		expect(config.colors.editorAccent).toBeUndefined();
 		expect(config.colors.editorRail).toBeUndefined();
 		expect(config.colors.editorPrompt).toBeUndefined();
@@ -2316,9 +2317,7 @@ describe("mergeConfig", () => {
 		expect(mergeConfig({ footerSegments: { sessionName: false } }).footerSegments.sessionName).toBe(
 			false,
 		);
-		expect(mergeConfig({ colors: { sessionName: "not-a-color" } }).colors.sessionName).toBe(
-			"bold green",
-		);
+		expect(mergeConfig({ colors: { sessionName: "not-a-color" } }).colors.sessionName).toBe("");
 		expect(mergeConfig({ footerSegments: { sessionName: "on" } }).footerSegments.sessionName).toBe(
 			true,
 		);

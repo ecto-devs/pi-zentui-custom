@@ -8,7 +8,7 @@ import { emptyGitStatus } from "../extensions/zentui/git";
 import { createInitialState } from "../extensions/zentui/state";
 
 it.each(["theme", "terminal"] as const)(
-	"renders the current git status as a green  with %s colors",
+	"renders the current git status icon unstyled with %s colors",
 	(colorSource) => {
 		const config = structuredClone(defaultConfig);
 		config.components.footer.colorSource = colorSource;
@@ -38,13 +38,13 @@ it.each(["theme", "terminal"] as const)(
 		);
 		if (!footer) throw new Error("footer missing");
 		try {
-			const greenIcon = colorSource === "theme" ? "<success></success>" : "\x1b[32m\x1b[0m";
+			const unstyledIcon = "";
 			const current = footer.render(120).join("");
-			expect(current).toContain(greenIcon);
+			expect(current).toContain(unstyledIcon);
 			expect(current).not.toContain("✓");
 			state.modified = 1;
 			const modified = footer.render(120).join("");
-			expect(modified).toContain(greenIcon);
+			expect(modified).toContain(unstyledIcon);
 			expect(stripVTControlCharacters(modified)).toContain(config.icons.modified.trim());
 		} finally {
 			footer.dispose?.();

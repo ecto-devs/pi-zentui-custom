@@ -416,26 +416,26 @@ Reference only—not a starter file. Prefer the minimal overrides above. Optiona
 		"package": ""
 	},
 	"colors": {
-		"cwd": "bold cyan",
-		"sessionName": "bold green",
-		"gitBranch": "bold purple",
-		"gitStatus": "bold red",
-		"contextNormal": "bright-black",
-		"contextWarning": "bold yellow",
-		"contextError": "bold red",
-		"tokens": "bright-black",
-		"cost": "bold green",
-		"extensionStatus": "bright-black",
-		"separator": "bright-black",
+		"cwd": "",
+		"sessionName": "",
+		"gitBranch": "",
+		"gitStatus": "",
+		"contextNormal": "",
+		"contextWarning": "",
+		"contextError": "",
+		"tokens": "",
+		"cost": "",
+		"extensionStatus": "",
+		"separator": "",
 		"runtimePrefix": "",
-		"sessionDuration": "yellow",
-		"packageVersion": "208",
-		"gitCommit": "bold green",
-		"gitMetricsAdded": "bold green",
-		"gitMetricsDeleted": "bold red",
-		"username": "bold yellow",
-		"time": "bold yellow",
-		"os": "bold white"
+		"sessionDuration": "",
+		"packageVersion": "",
+		"gitCommit": "",
+		"gitMetricsAdded": "",
+		"gitMetricsDeleted": "",
+		"username": "",
+		"time": "",
+		"os": ""
 	}
 }
 ```
@@ -1110,7 +1110,7 @@ This is conservative terminal-environment detection, not font probing: terminal 
 
 ## Runtime detection
 
-Runtime/language modules use Starship Nerd Font symbols and defaults such as `bold green` for Node.js. Theme mode maps those styles through Pi; Footer terminal mode uses the terminal colorscheme's ANSI colors. In Auto mode, runtime, OS, package, rail, and gauge symbols all use the same derived effective icon mode.
+Runtime/language modules use Starship Nerd Font symbols. No colors are defined by default: the runtime segment renders with system theme defaults. Set per-segment colors via `/zentui` to opt back in. In Auto mode, runtime, OS, package, rail, and gauge symbols all use the same derived effective icon mode.
 
 | Runtime/language | Detection examples                                           |
 | ---------------- | ------------------------------------------------------------ |

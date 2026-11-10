@@ -103,6 +103,23 @@ const editorLegacyKeys = {
 	thinkingMax: "editorThinkingMax",
 } as const;
 
+/**
+ * Historical defaults for the Editor's shared-named roles. The shared `colors`
+ * map is unstyled by default (Footer renders with system theme defaults);
+ * these keep the Editor surface independent of Footer defaults. A local
+ * `components.editor.colors.<key>` override — including `""` — still wins.
+ */
+const editorSharedDefaults: Partial<Record<ComponentColorKey<"editor">, ColorSpec>> = {
+	cwd: "bold cyan",
+	sessionName: "bold green",
+	gitStatus: "bold red",
+	contextNormal: "bright-black",
+	contextWarning: "bold yellow",
+	contextError: "bold red",
+	cost: "bold green",
+	sessionDuration: "yellow",
+};
+
 /** Resolve only raw styles. Role-specific chains and selected-source defaults stay with the renderer. */
 export function componentColor(
 	config: ZentuiConfig,
@@ -142,7 +159,11 @@ export function componentColor<O extends ColorOwner>(
 				: owner === "workingLine"
 					? `workingLine${key[0]?.toUpperCase()}${key.slice(1)}`
 					: key;
-	return config.colors[legacy as keyof PolishedTuiColors];
+	const value = config.colors[legacy as keyof PolishedTuiColors];
+	if (owner === "editor" && (value === undefined || value === "")) {
+		return editorSharedDefaults[key] ?? value;
+	}
+	return value;
 }
 
 export function workingLineColor(
