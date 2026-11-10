@@ -481,8 +481,8 @@ export function installFooter(
 					// Starship `up_to_date`: plain checkmark when the branch is current.
 					return isGitRepo ? " \u2713 " : "";
 				})();
-				const statusBlock =
-					allStatus || aheadBehind ? gitStatusColor(`[${allStatus}${aheadBehind}]`) : "";
+				const statusText = `${allStatus}${aheadBehind}`.trim();
+				const statusBlock = statusText ? gitStatusColor(statusText) : "";
 				const gitStateBlock = gitStateLabel ? gitStatusColor(gitStateLabel) : "";
 				const renderBuiltInVariable = (name: string): string => {
 					const canonical = FOOTER_FORMAT_ALIASES[name] ?? name;
