@@ -981,7 +981,8 @@ describe("component-oriented /zentui settings", () => {
 		expect(harness.calls.selectors).toEqual([{ colorSource: "theme" }]);
 		expect(harness.calls.editor).toEqual([{ colorSource: "theme" }, { modelLabel: "name" }]);
 		expect(harness.calls.messages).toEqual([{ colorSource: "theme" }]);
-		expect(harness.calls.footer).toEqual([{ colorSource: "theme" }, { modelLabel: "name" }]);
+		// The Footer already defaults to "theme", so its toggle moves the other way.
+		expect(harness.calls.footer).toEqual([{ colorSource: "terminal" }, { modelLabel: "name" }]);
 	});
 
 	it("keeps the editor rail and the user-message rail controls independent", async () => {
@@ -1789,9 +1790,9 @@ describe("component-oriented /zentui settings", () => {
 			expect(rows[3]).toContain("> Footer style");
 			expect(rows.join("\n")).not.toMatch(/samples?|synthetic|sonnet-long-context-preview/i);
 		}
-		expect(row(component, "Footer colors")).toContain("terminal");
+		expect(row(component, "Footer colors")).toContain("theme");
 		component.handleInput(" ");
-		expect(harness.calls.footer).toEqual([{ colorSource: "theme" }]);
+		expect(harness.calls.footer).toEqual([{ colorSource: "terminal" }]);
 		for (const label of ["Footer model label", "Responsive footer", "Color overrides"])
 			expect(row(component, label)).toContain(`> ${label}`);
 		for (const section of footerPageNames) {

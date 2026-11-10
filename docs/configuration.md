@@ -334,7 +334,7 @@ Reference only—not a starter file. Prefer the minimal overrides above. Optiona
 		"footer": {
 			"style": "starship",
 			"codexQuota": false,
-			"colorSource": "terminal",
+			"colorSource": "theme",
 			"modelLabel": "id",
 			"styles": {
 				"starship": {
@@ -416,26 +416,26 @@ Reference only—not a starter file. Prefer the minimal overrides above. Optiona
 		"package": ""
 	},
 	"colors": {
-		"cwd": "",
-		"sessionName": "",
-		"gitBranch": "",
-		"gitStatus": "",
-		"contextNormal": "",
-		"contextWarning": "",
-		"contextError": "",
-		"tokens": "",
-		"cost": "",
-		"extensionStatus": "",
-		"separator": "",
+		"cwd": "bold cyan",
+		"sessionName": "bold green",
+		"gitBranch": "bold purple",
+		"gitStatus": "bold red",
+		"contextNormal": "bright-black",
+		"contextWarning": "bold yellow",
+		"contextError": "bold red",
+		"tokens": "bright-black",
+		"cost": "bold green",
+		"extensionStatus": "bright-black",
+		"separator": "bright-black",
 		"runtimePrefix": "",
-		"sessionDuration": "",
-		"packageVersion": "",
-		"gitCommit": "",
-		"gitMetricsAdded": "",
-		"gitMetricsDeleted": "",
-		"username": "",
-		"time": "",
-		"os": ""
+		"sessionDuration": "yellow",
+		"packageVersion": "bold yellow",
+		"gitCommit": "bold green",
+		"gitMetricsAdded": "bold green",
+		"gitMetricsDeleted": "bold red",
+		"username": "bold yellow",
+		"time": "bold yellow",
+		"os": "bold white"
 	}
 }
 ```
@@ -458,7 +458,7 @@ Reference only—not a starter file. Prefer the minimal overrides above. Optiona
 - `components.footer` owns `native | starship | hidden` style selection, color source, model label, and Starship options. Hidden hides its main segments, retaining only allowed extension statuses; an empty status line occupies no rows.
 - Starship's package-version segment reads the project manifest and is distinct from the runtime segment, which reports the installed toolchain.
 - `components.extensionStatuses` independently controls Show/Hide for observed `ctx.ui.setStatus()` publications. It also owns Hidden-only placement under `hidden`; Starship retains its own placement and color modes. A per-key Hide wins over any positive Starship placement.
-- Editor, User messages, Footer, selector borders, and Working line default to `terminal` colors. Explicit saved `theme` choices remain unchanged. Omit optional `editor*` overrides to preserve source-aware defaults.
+- The Footer defaults to `theme` colors, so its segments resolve through the active Pi theme's semantic tokens (for example `bold purple` → `syntaxKeyword`, `bold green` → `success`, `bright-black` → `muted`) and follow your color theme. Set `components.footer.colorSource` to `terminal` to render the same style strings as raw ANSI instead. Editor, User messages, selector borders, and Working line default to `terminal` colors. Explicit saved choices remain unchanged. Omit optional `editor*` overrides to preserve source-aware defaults.
 
 ### Codex account quota
 
@@ -1110,7 +1110,7 @@ This is conservative terminal-environment detection, not font probing: terminal 
 
 ## Runtime detection
 
-Runtime/language modules use Starship Nerd Font symbols. No colors are defined by default: the runtime segment renders with system theme defaults. Set per-segment colors via `/zentui` to opt back in. In Auto mode, runtime, OS, package, rail, and gauge symbols all use the same derived effective icon mode.
+Runtime/language modules use Starship Nerd Font symbols and defaults such as `bold green` for Node.js. Theme mode maps those styles through Pi; Footer terminal mode uses the terminal colorscheme's ANSI colors. In Auto mode, runtime, OS, package, rail, and gauge symbols all use the same derived effective icon mode.
 
 | Runtime/language | Detection examples                                           |
 | ---------------- | ------------------------------------------------------------ |

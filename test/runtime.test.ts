@@ -28,41 +28,41 @@ function makeProject(entries: Array<{ path: string; dir?: boolean }>): {
 }
 
 describe("runtimeMetadata", () => {
-	it("covers Starship Nerd Font runtime and language modules with icons and no defined colors", () => {
+	it("covers Starship Nerd Font runtime and language modules with icons and Starship styles", () => {
 		const byName = new Map(runtimeMetadata.map((runtime) => [runtime.name, runtime]));
 
 		expect([...byName.keys()].sort()).toEqual(starshipRuntimeModules());
 		expect(byName.get("bun")).toMatchObject({
 			symbol: "",
-			style: "",
+			style: "bold red",
 		});
 		expect(byName.get("deno")).toMatchObject({
 			symbol: "",
-			style: "",
+			style: "green bold",
 		});
 		expect(byName.get("golang")).toMatchObject({
 			symbol: "",
-			style: "",
+			style: "bold cyan",
 		});
 		expect(byName.get("java")).toMatchObject({
 			symbol: "",
-			style: "",
+			style: "red dimmed",
 		});
 		expect(byName.get("nodejs")).toMatchObject({
 			symbol: "",
-			style: "",
+			style: "bold green",
 		});
 		expect(byName.get("opa")).toMatchObject({
 			symbol: "",
-			style: "",
+			style: "bold blue",
 		});
 		expect(byName.get("zig")).toMatchObject({
 			symbol: "",
-			style: "",
+			style: "bold yellow",
 		});
 		for (const runtime of runtimeMetadata) {
 			expect(Object.keys(runtime).sort()).toEqual(["name", "style", "symbol"]);
-			expect(runtime.style).toBe("");
+			expect(runtime.style).not.toMatch(/^#[0-9A-F]{6}$/);
 		}
 	});
 });
@@ -80,7 +80,7 @@ describe("detectRuntime", () => {
 		const runtime = detectRuntime(project.cwd, project.names);
 		if (!runtime) throw new Error("expected runtime");
 		expect(runtime.name).toBe("deno");
-		expect(runtime.style).toBe("");
+		expect(runtime.style).toBe("green bold");
 	});
 
 	it("keeps existing node priority when node and go markers both exist", () => {
@@ -120,37 +120,37 @@ describe("detectRuntime", () => {
 	});
 
 	it.each([
-		["buf", "buf.yaml"],
-		["c", "hello.c"],
-		["cpp", "hello.cpp"],
-		["elixir", "mix.exs"],
-		["gleam", "gleam.toml"],
-		["julia", "Project.toml"],
-		["opa", "policy.rego"],
-		["pixi", "pixi.toml"],
-		["swift", "Package.swift"],
-		["xmake", "xmake.lua"],
-		["zig", "build.zig"],
-	])("detects %s projects from Starship markers", (name, marker) => {
+		["buf", "buf.yaml", "bold blue"],
+		["c", "hello.c", "bold 149"],
+		["cpp", "hello.cpp", "bold 149"],
+		["elixir", "mix.exs", "bold purple"],
+		["gleam", "gleam.toml", "bold #FFAFF3"],
+		["julia", "Project.toml", "bold purple"],
+		["opa", "policy.rego", "bold blue"],
+		["pixi", "pixi.toml", "yellow bold"],
+		["swift", "Package.swift", "bold 202"],
+		["xmake", "xmake.lua", "bold green"],
+		["zig", "build.zig", "bold yellow"],
+	])("detects %s projects from Starship markers", (name, marker, style) => {
 		const project = makeProject([{ path: marker }]);
 		const runtime = detectRuntime(project.cwd, project.names);
 		if (!runtime) throw new Error("expected runtime");
 		expect(runtime.name).toBe(name);
-		expect(runtime.style).toBe("");
+		expect(runtime.style).toBe(style);
 	});
 
 	it.each([
-		["conda", { CONDA_DEFAULT_ENV: "py312" }],
-		["guix_shell", { GUIX_ENVIRONMENT: "/gnu/store/profile" }],
-		["meson", { MESON_DEVENV: "1", MESON_PROJECT_NAME: "zentui" }],
-		["nix_shell", { IN_NIX_SHELL: "pure" }],
-		["spack", { SPACK_ENV: "dev" }],
-	])("detects %s from Starship environment markers", (name, env) => {
+		["conda", { CONDA_DEFAULT_ENV: "py312" }, "bold green"],
+		["guix_shell", { GUIX_ENVIRONMENT: "/gnu/store/profile" }, "yellow bold"],
+		["meson", { MESON_DEVENV: "1", MESON_PROJECT_NAME: "zentui" }, "blue bold"],
+		["nix_shell", { IN_NIX_SHELL: "pure" }, "bold blue"],
+		["spack", { SPACK_ENV: "dev" }, "bold blue"],
+	])("detects %s from Starship environment markers", (name, env, style) => {
 		const project = makeProject([]);
 		const runtime = detectRuntime(project.cwd, project.names, env);
 		if (!runtime) throw new Error("expected runtime");
 		expect(runtime.name).toBe(name);
-		expect(runtime.style).toBe("");
+		expect(runtime.style).toBe(style);
 	});
 });
 

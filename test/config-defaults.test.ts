@@ -64,12 +64,16 @@ describe("unsaved config defaults", () => {
 			expect(config.components.thinkingSteps.enabled).toBe(false);
 			expect(config.components.editor.styles.minimalist).toEqual(minimalistDefaults);
 			expect(config.editorStyles.minimalist).toEqual(minimalistDefaults);
+			// Ownership is independent: the Footer resolves through the theme by
+			// default, every other owner stays on raw terminal styling.
 			for (const owner of colorOwners)
-				expect(config.components[owner].colorSource).toBe("terminal");
+				expect(config.components[owner].colorSource).toBe(
+					owner === "footer" ? "theme" : "terminal",
+				);
 			expect(config.colorSources).toEqual({
 				editor: "terminal",
 				userMessages: "terminal",
-				starship: "terminal",
+				starship: "theme",
 			});
 			withConfig((path) => {
 				ensureConfigExists(path);
@@ -97,7 +101,9 @@ describe("unsaved config defaults", () => {
 				},
 			});
 			for (const owner of colorOwners)
-				expect(config.components[owner].colorSource).toBe("terminal");
+				expect(config.components[owner].colorSource).toBe(
+					owner === "footer" ? "theme" : "terminal",
+				);
 			expect(config.components.editor.styles.minimalist).toEqual(minimalistDefaults);
 			expect(config.components.workingLine).toMatchObject({ enabled: true, placement: "border" });
 		},

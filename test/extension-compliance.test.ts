@@ -3664,16 +3664,6 @@ describe("Pi docs compliance", () => {
 	});
 
 	it("does not crash when config colors contain Starship modifiers", () => {
-		const config = structuredClone(defaultConfig);
-		// Defaults are unstyled; give the footer explicit Starship-modifier
-		// colors so the no-crash contract has styled output to verify.
-		config.colors = {
-			...config.colors,
-			cwd: "bold purple",
-			contextNormal: "bright-black",
-			cost: "bold green",
-		};
-		config.components.footer.colorSource = "theme";
 		let footerFactory: FooterFactory | undefined;
 		const ctx = makeContext({
 			cwd: "/tmp/project",
@@ -3690,7 +3680,7 @@ describe("Pi docs compliance", () => {
 		state.tokenLabel = "↑1 ↓2";
 		state.costLabel = "$0.001";
 
-		installFooter(ctx as never, state, () => config, {
+		installFooter(ctx as never, state, () => defaultConfig, {
 			setRequestRender() {},
 			scheduleProjectRefresh() {},
 		});
@@ -3932,14 +3922,6 @@ describe("Pi docs compliance", () => {
 		state.autoCompaction = true;
 		const config = {
 			...defaultConfig,
-			// Defaults are unstyled; give the telemetry atoms explicit terminal
-			// colors so the ANSI-styled width-bound check has styled output.
-			colors: {
-				...defaultConfig.colors,
-				tokens: "bright-black",
-				cost: "bold green",
-				contextNormal: "bright-black",
-			},
 			footerFormat: "X".repeat(200),
 			compactFooterFormat:
 				"$cache_read$wrap_sep$cache_write$wrap_sep$subscription$wrap_sep$auto_compaction",

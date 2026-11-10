@@ -167,7 +167,7 @@ describe("canonical config resolution", () => {
 			footer: {
 				codexQuota: false,
 				style: "starship",
-				colorSource: "terminal",
+				colorSource: "theme",
 				modelLabel: "id",
 				styles: {
 					starship: {
@@ -1581,22 +1581,21 @@ describe("mergeConfig", () => {
 		expect(config.projectRefreshIntervalMs).toBe(30_000);
 		expect(config.icons).toMatchObject({ mode: "auto", effectiveMode: "ascii", cacheHit: "c" });
 		expect(config.icons.editorPrompt).toBe("");
-		// No defined colors: every footer element defaults to the system theme.
-		expect(config.colors.gitBranch).toBe("");
-		expect(config.colors.packageVersion).toBe("");
-		expect(config.colors.gitCommit).toBe("");
-		expect(config.colors.gitMetricsAdded).toBe("");
-		expect(config.colors.gitMetricsDeleted).toBe("");
-		expect(config.colors.sessionName).toBe("");
-		expect(config.colors.contextNormal).toBe("");
-		expect(config.colors.tokens).toBe("");
-		expect(config.colors.extensionStatus).toBe("");
+		expect(config.colors.gitBranch).toBe("bold purple");
+		expect(config.colors.packageVersion).toBe("bold yellow");
+		expect(config.colors.gitCommit).toBe("bold green");
+		expect(config.colors.gitMetricsAdded).toBe("bold green");
+		expect(config.colors.gitMetricsDeleted).toBe("bold red");
+		expect(config.colors.sessionName).toBe("bold green");
+		expect(config.colors.contextNormal).toBe("bright-black");
+		expect(config.colors.tokens).toBe("bright-black");
+		expect(config.colors.extensionStatus).toBe("bright-black");
 		expect(config.colors.editorAccent).toBeUndefined();
 		expect(config.colors.editorRail).toBeUndefined();
 		expect(config.colors.editorPrompt).toBeUndefined();
 		expect(config.colors.editorBorder).toBeUndefined();
 		expect(config.colorSources).toEqual({
-			starship: "terminal",
+			starship: "theme",
 			editor: "terminal",
 			userMessages: "terminal",
 		});
@@ -2224,7 +2223,7 @@ describe("mergeConfig", () => {
 		expect(config.colors.editorBorder).toBeUndefined();
 		expect(config.colors.editorThinkingHigh).toBe("thinkingHigh");
 		expect(config.colorSources).toEqual({
-			starship: "terminal",
+			starship: "theme",
 			editor: "terminal",
 			userMessages: "terminal",
 		});
@@ -2236,7 +2235,7 @@ describe("mergeConfig", () => {
 		).toEqual({ starship: "terminal", editor: "theme", userMessages: "terminal" });
 		expect(
 			mergeConfig({ colorSources: { starship: "neon", userMessages: "terminal" } }).colorSources,
-		).toEqual({ starship: "terminal", editor: "terminal", userMessages: "terminal" });
+		).toEqual({ starship: "theme", editor: "terminal", userMessages: "terminal" });
 	});
 
 	it("accepts valid UI feature preferences and ignores invalid values", () => {
@@ -2317,7 +2316,9 @@ describe("mergeConfig", () => {
 		expect(mergeConfig({ footerSegments: { sessionName: false } }).footerSegments.sessionName).toBe(
 			false,
 		);
-		expect(mergeConfig({ colors: { sessionName: "not-a-color" } }).colors.sessionName).toBe("");
+		expect(mergeConfig({ colors: { sessionName: "not-a-color" } }).colors.sessionName).toBe(
+			"bold green",
+		);
 		expect(mergeConfig({ footerSegments: { sessionName: "on" } }).footerSegments.sessionName).toBe(
 			true,
 		);
@@ -2394,7 +2395,7 @@ describe("mergeConfig", () => {
 			const raw = JSON.parse(readFileSync(path, "utf8"));
 
 			expect(config.colorSources).toEqual({
-				starship: "terminal",
+				starship: "theme",
 				editor: "terminal",
 				userMessages: "terminal",
 			});

@@ -107,9 +107,6 @@ it("keeps live theme, statuses, widths and in-place format edits outside cached 
 	starship.compactFormat = "live-compact $tokens $wrap $extensions";
 	starship.extensionStatuses.colorModes.pr = "original";
 	config.components.footer.colorSource = "theme";
-	// Defaults are unstyled; give one segment a local color so the live-theme
-	// propagation check below has a theme.fg() call to observe.
-	config.components.footer.colors = { tokens: "red" };
 	const state = createInitialState(emptyGitStatus());
 	state.tokenLabel = "123";
 	const statuses = new Map([["pr", "ready"]]);

@@ -662,7 +662,10 @@ const defaultComponents: ComponentsConfig = {
 	footer: {
 		codexQuota: false,
 		style: "starship",
-		colorSource: "terminal",
+		// Resolve every footer color through the active Pi theme's semantic
+		// tokens instead of fixed ANSI literals, so the footer follows the
+		// system color theme. Names below map via themeColorNameMap.
+		colorSource: "theme",
 		modelLabel: "id",
 		styles: { starship: defaultStarshipStyle },
 	},
@@ -672,28 +675,33 @@ export const defaultConfig: PolishedTuiConfig = {
 	projectRefreshIntervalMs: DEFAULT_PROJECT_REFRESH_INTERVAL_MS,
 	icons: resolveConfiguredIcons("auto"),
 	colors: {
-		// No defined colors: every footer element renders with system theme
-		// defaults. Users can opt back in per segment via /zentui.
-		cwd: "",
-		sessionName: "",
-		gitBranch: "",
-		gitStatus: "",
-		contextNormal: "",
-		contextWarning: "",
-		contextError: "",
-		tokens: "",
-		cost: "",
-		separator: "",
+		// Color *names*, not fixed literals. With the footer's default
+		// colorSource of "theme" these resolve through the active Pi theme's
+		// semantic tokens (see themeColorNameMap in style.ts), so the footer
+		// follows the system color theme. Switch a component's colorSource to
+		// "terminal" to render them as raw ANSI instead.
+		cwd: "bold cyan",
+		sessionName: "bold green",
+		gitBranch: "bold purple",
+		gitStatus: "bold red",
+		contextNormal: "bright-black",
+		contextWarning: "bold yellow",
+		contextError: "bold red",
+		tokens: "bright-black",
+		cost: "bold green",
+		separator: "bright-black",
 		runtimePrefix: "",
-		extensionStatus: "",
-		sessionDuration: "",
-		packageVersion: "",
-		gitCommit: "",
-		gitMetricsAdded: "",
-		gitMetricsDeleted: "",
-		username: "",
-		time: "",
-		os: "",
+		extensionStatus: "bright-black",
+		sessionDuration: "yellow",
+		// Named rather than the old raw 256-color index 208, which has no theme
+		// token mapping and would fall back to unstyled under colorSource "theme".
+		packageVersion: "bold yellow",
+		gitCommit: "bold green",
+		gitMetricsAdded: "bold green",
+		gitMetricsDeleted: "bold red",
+		username: "bold yellow",
+		time: "bold yellow",
+		os: "bold white",
 	},
 	components: defaultComponents,
 	footerFormat: defaultStarshipStyle.format,
@@ -710,7 +718,9 @@ export const defaultConfig: PolishedTuiConfig = {
 	contextThresholds: defaultStarshipStyle.contextThresholds,
 	pathDisplay: defaultStarshipStyle.pathDisplay,
 	gitBranch: defaultStarshipStyle.gitBranch,
-	colorSources: { starship: "terminal", editor: "terminal", userMessages: "terminal" },
+	// Legacy mirror of the canonical per-component colorSource values; kept in
+	// sync with defaultComponents (footer/starship resolves through the theme).
+	colorSources: { starship: "theme", editor: "terminal", userMessages: "terminal" },
 	features: {
 		editor: true,
 		statusLine: true,
