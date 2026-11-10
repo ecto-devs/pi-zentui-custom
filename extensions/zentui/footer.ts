@@ -457,33 +457,29 @@ export function installFooter(
 					);
 				const gitIcon = config.icons.git ? gitColor(config.icons.git) : "";
 				const gitCounts = config.components.footer.styles.starship.segments.gitCounts;
-				const stashLabel =
-					state.stashed > 0
-						? gitCounts
-							? `${config.icons.stashed}${state.stashed}`
-							: config.icons.stashed
-						: "";
+				// Starship `git_status` order: staged, modified, untracked, deleted,
+				// renamed, conflicted, then diverged / ahead-behind / up-to-date.
+				const countPart = (value: number) => (gitCounts ? ` ${value}` : "");
 				const allStatus = [
-					state.conflicted > 0 ? config.icons.conflicted : "",
-					stashLabel,
-					state.deleted > 0 ? config.icons.deleted : "",
-					state.renamed > 0 ? config.icons.renamed : "",
-					state.modified > 0 ? config.icons.modified : "",
-					state.typechanged > 0 ? config.icons.typechanged : "",
-					state.staged > 0 ? config.icons.staged : "",
-					state.untracked > 0 ? config.icons.untracked : "",
+					state.staged > 0 ? ` ${config.icons.staged}${countPart(state.staged)}` : "",
+					state.modified > 0 ? ` ${config.icons.modified}${countPart(state.modified)}` : "",
+					state.untracked > 0 ? ` ${config.icons.untracked}${countPart(state.untracked)}` : "",
+					state.deleted > 0 ? ` ${config.icons.deleted}${countPart(state.deleted)}` : "",
+					state.renamed > 0 ? ` ${config.icons.renamed}${countPart(state.renamed)}` : "",
+					state.conflicted > 0 ? ` ${config.icons.conflicted}${countPart(state.conflicted)}` : "",
 				].join("");
+				const isGitRepo =
+					branch !== undefined ||
+					allStatus.length > 0 ||
+					state.ahead > 0 ||
+					state.behind > 0;
 				const aheadBehind = (() => {
-					if (state.ahead > 0 && state.behind > 0) {
-						return gitCounts
-							? `${config.icons.ahead}${state.ahead}${config.icons.behind}${state.behind}`
-							: config.icons.diverged;
-					}
-					if (state.ahead > 0)
-						return gitCounts ? `${config.icons.ahead}${state.ahead}` : config.icons.ahead;
-					if (state.behind > 0)
-						return gitCounts ? `${config.icons.behind}${state.behind}` : config.icons.behind;
-					return "";
+					if (state.ahead > 0 && state.behind > 0)
+						return ` ${config.icons.diverged}${gitCounts ? ` ${state.ahead}:${state.behind}` : ""}`;
+					if (state.ahead > 0) return ` ${config.icons.ahead}${countPart(state.ahead)}`;
+					if (state.behind > 0) return ` ${config.icons.behind}${countPart(state.behind)}`;
+					// Starship `up_to_date`: plain checkmark when the branch is current.
+					return isGitRepo ? " \u2713 " : "";
 				})();
 				const statusBlock =
 					allStatus || aheadBehind ? gitStatusColor(`[${allStatus}${aheadBehind}]`) : "";
