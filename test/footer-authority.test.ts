@@ -7,6 +7,51 @@ import { installFooter } from "../extensions/zentui/footer";
 import { emptyGitStatus } from "../extensions/zentui/git";
 import { createInitialState } from "../extensions/zentui/state";
 
+it.each(["theme", "terminal"] as const)(
+	"renders the current git status as a green  with %s colors",
+	(colorSource) => {
+		const config = structuredClone(defaultConfig);
+		config.components.footer.colorSource = colorSource;
+		config.components.footer.styles.starship.format = "$git_status";
+		config.components.footer.styles.starship.responsive = false;
+		const state = createInitialState(emptyGitStatus());
+		state.branch = "main";
+		let factory: Parameters<ExtensionContext["ui"]["setFooter"]>[0];
+		installFooter(
+			{
+				cwd: "/repo",
+				sessionManager: { getSessionName: () => undefined },
+				ui: {
+					setFooter(value: typeof factory) {
+						factory = value;
+					},
+				},
+			} as unknown as ExtensionContext,
+			state,
+			() => config,
+			{ setRequestRender() {}, scheduleProjectRefresh() {} },
+		);
+		const footer = factory?.(
+			{ requestRender() {} } as never,
+			{ fg: (color: string, text: string) => `<${color}>${text}</${color}>` } as Theme,
+			{ onBranchChange: () => () => {}, getExtensionStatuses: () => new Map() } as never,
+		);
+		if (!footer) throw new Error("footer missing");
+		try {
+			const greenIcon = colorSource === "theme" ? "<success></success>" : "\x1b[32m\x1b[0m";
+			const current = footer.render(120).join("");
+			expect(current).toContain(greenIcon);
+			expect(current).not.toContain("✓");
+			state.modified = 1;
+			const modified = footer.render(120).join("");
+			expect(modified).toContain(greenIcon);
+			expect(stripVTControlCharacters(modified)).toContain(config.icons.modified.trim());
+		} finally {
+			footer.dispose?.();
+		}
+	},
+);
+
 it("keeps explicit template authority when resizing from disabled built-in cwd/enabled cost to compact", () => {
 	const config = structuredClone(defaultConfig);
 	const starship = config.components.footer.styles.starship;

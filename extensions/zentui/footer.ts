@@ -470,20 +470,27 @@ export function installFooter(
 					state.conflicted > 0 ? ` ${config.icons.conflicted}${countPart(state.conflicted)}` : "",
 				].join("");
 				const isGitRepo =
-					branch !== undefined ||
-					allStatus.length > 0 ||
-					state.ahead > 0 ||
-					state.behind > 0;
+					branch !== undefined || allStatus.length > 0 || state.ahead > 0 || state.behind > 0;
 				const aheadBehind = (() => {
 					if (state.ahead > 0 && state.behind > 0)
 						return ` ${config.icons.diverged}${gitCounts ? `${state.ahead}:${state.behind}` : ""}`;
 					if (state.ahead > 0) return ` ${config.icons.ahead}${countPart(state.ahead)}`;
 					if (state.behind > 0) return ` ${config.icons.behind}${countPart(state.behind)}`;
-					// Starship `up_to_date`: plain checkmark when the branch is current.
-					return isGitRepo ? " \u2713 " : "";
+					// Starship `up_to_date`: a green icon when the branch is current.
+					return isGitRepo ? "  " : "";
 				})();
+				const isUpToDate = isGitRepo && state.ahead === 0 && state.behind === 0;
 				const statusText = `${allStatus}${aheadBehind}`.trim();
-				const statusBlock = statusText ? gitStatusColor(statusText) : "";
+				const statusBlock = isUpToDate
+					? [
+							allStatus.trim() ? gitStatusColor(allStatus.trim()) : "",
+							renderStyleForSource(theme, colorSource, "green", ""),
+						]
+							.filter(Boolean)
+							.join(" ")
+					: statusText
+						? gitStatusColor(statusText)
+						: "";
 				const gitStateBlock = gitStateLabel ? gitStatusColor(gitStateLabel) : "";
 				const renderBuiltInVariable = (name: string): string => {
 					const canonical = FOOTER_FORMAT_ALIASES[name] ?? name;
