@@ -459,7 +459,8 @@ export function installFooter(
 				const gitCounts = config.components.footer.styles.starship.segments.gitCounts;
 				// Starship `git_status` order: staged, modified, untracked, deleted,
 				// renamed, conflicted, then diverged / ahead-behind / up-to-date.
-				const countPart = (value: number) => (gitCounts ? ` ${value}` : "");
+				// Status icons already carry a trailing space; append counts directly.
+				const countPart = (value: number) => (gitCounts ? `${value}` : "");
 				const allStatus = [
 					state.staged > 0 ? ` ${config.icons.staged}${countPart(state.staged)}` : "",
 					state.modified > 0 ? ` ${config.icons.modified}${countPart(state.modified)}` : "",
@@ -475,7 +476,7 @@ export function installFooter(
 					state.behind > 0;
 				const aheadBehind = (() => {
 					if (state.ahead > 0 && state.behind > 0)
-						return ` ${config.icons.diverged}${gitCounts ? ` ${state.ahead}:${state.behind}` : ""}`;
+						return ` ${config.icons.diverged}${gitCounts ? `${state.ahead}:${state.behind}` : ""}`;
 					if (state.ahead > 0) return ` ${config.icons.ahead}${countPart(state.ahead)}`;
 					if (state.behind > 0) return ` ${config.icons.behind}${countPart(state.behind)}`;
 					// Starship `up_to_date`: plain checkmark when the branch is current.
