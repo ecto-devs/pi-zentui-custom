@@ -1356,7 +1356,9 @@ export class PolishedEditor extends CustomEditor {
 
 	private renderDecorated(width: number): string[] {
 		const config = this.getConfig();
-		if (!config.components.editor.enabled) {
+		// During shutdown paint plain rows so the last frame leaves no rail or
+		// owned background for a host terminal to show after exit.
+		if (config.sessionClosing || !config.components.editor.enabled) {
 			this.reportMinimalistDecoration(false);
 			return this.renderFallback(this.renderBase(width), width);
 		}
@@ -1668,7 +1670,9 @@ export class WrappedPolishedEditor implements EditorComponent {
 
 	private renderDecorated(width: number): string[] {
 		const config = this.getConfig();
-		if (!config.components.editor.enabled) {
+		// During shutdown paint plain rows so the last frame leaves no rail or
+		// owned background for a host terminal to show after exit.
+		if (config.sessionClosing || !config.components.editor.enabled) {
 			this.reportMinimalistDecoration(false);
 			return this.renderFallback(this.renderBase(width), width);
 		}

@@ -50,6 +50,7 @@ import {
 	savePolishedEditorStylePatch,
 	saveSelectorBordersComponentPatch,
 	saveStarshipFooterStylePatch,
+	setSessionClosing,
 	saveThinkingStepsComponentPatch,
 	saveToolDisplayComponentPatch,
 	saveUserMessagesComponentPatch,
@@ -1659,6 +1660,7 @@ export default function (pi: ExtensionAPI, host: ZentuiHost = {}) {
 		// any await or transcript restoration.
 		toolDisplay.clearPending();
 		currentConfig = scopeConfig(loadConfig());
+		setSessionClosing(currentConfig, false);
 		extensionStatuses.dispose();
 		if (!host.skinOnly && isTuiContext(ctx)) extensionStatuses.install(ctx.ui);
 		if (!host.skinOnly) thinkingExperimental.startSession(ctx);
@@ -1930,6 +1932,9 @@ export default function (pi: ExtensionAPI, host: ZentuiHost = {}) {
 	});
 
 	pi.on("session_shutdown", async (event, ctx) => {
+		// Paint plain editor rows for the rest of this session so the last frame
+		// leaves no owned background or rail chrome behind on exit.
+		setSessionClosing(currentConfig, true);
 		toolDisplay.clearPending();
 		if (event.reason === "reload" || event.reason === "quit") toolDisplay.dispose();
 		unsubscribeHostProjectChanges();

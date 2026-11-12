@@ -3,7 +3,11 @@ import type { Theme } from "@earendil-works/pi-coding-agent";
 import { visibleWidth } from "@earendil-works/pi-tui";
 import { describe, expect, it } from "vitest";
 import { renderAccentRailEditorFrame } from "../extensions/zentui/accent-rail-editor";
-import { mergeConfig, type PolishedTuiConfig } from "../extensions/zentui/config";
+import {
+	mergeConfig,
+	setSessionClosing,
+	type PolishedTuiConfig,
+} from "../extensions/zentui/config";
 import { WrappedPolishedEditor } from "../extensions/zentui/ui";
 
 function theme(calls: Array<{ color: string; text: string }> = []): Theme {
@@ -389,6 +393,26 @@ describe("accent rail editor frame metadata and rail width", () => {
 		// Metadata is plain text: no rail glyph, no filled background.
 		expect(editor.render(28)[0]).not.toContain("▎");
 		expect(editor.render(28)[0]).not.toContain("\x1b[48;5;234m");
+	});
+
+	it("renders plain rows without rail or owned background while the session is closing", () => {
+		const current = railConfig();
+		const editor = new WrappedPolishedEditor(
+			baseEditor() as never,
+			theme(),
+			() => current,
+			() => ({ modelLabel: "sonnet-4", providerLabel: "anthropic" }),
+			() => "high",
+		);
+		setSessionClosing(current, true);
+		const rows = editor.render(28);
+		for (const row of rows) {
+			expect(row).not.toContain("▎");
+			expect(row).not.toContain("\x1b[48;5;234m");
+		}
+		expect(rows.map(plain)).toEqual(["─".repeat(28), "draft", "─".repeat(28)]);
+		setSessionClosing(current, false);
+		expect(editor.render(28)[1]).toContain("▎");
 	});
 
 	it("hides the metadata row when it does not fit the width", () => {

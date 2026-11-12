@@ -8,6 +8,7 @@ import {
 	mergeConfig,
 	saveComponentPreset,
 	saveMinimalistTemplatePatch,
+	setSessionClosing,
 } from "../extensions/zentui/config";
 import {
 	componentPresets,
@@ -44,6 +45,18 @@ function minimalistPreset() {
 	if (!preset) throw new Error("Missing Minimalist preset");
 	return preset;
 }
+
+describe("session closing flag", () => {
+	it("starts false on every load and toggles without persisting", () => {
+		const config = mergeConfig({});
+		expect(config.sessionClosing).toBe(false);
+		expect(defaultConfig.sessionClosing).toBe(false);
+		setSessionClosing(config, true);
+		expect(config.sessionClosing).toBe(true);
+		setSessionClosing(config, false);
+		expect(config.sessionClosing).toBe(false);
+	});
+});
 
 describe("unsaved config defaults", () => {
 	it.each([undefined, null, [], {}, { components: false }])(

@@ -421,6 +421,12 @@ export type ZentuiConfig = {
 	icons: ResolvedIcons;
 	colors: PolishedTuiColors;
 	components: ComponentsConfig;
+	/**
+	 * Runtime-only (never persisted): set while the session is shutting down so
+	 * decorated surfaces render their plain predecessor rows one last time, leaving
+	 * no owned background or chrome for a host terminal to leave behind on exit.
+	 */
+	sessionClosing: boolean;
 };
 
 export type PolishedTuiColors = {
@@ -673,6 +679,7 @@ const defaultComponents: ComponentsConfig = {
 
 export const defaultConfig: PolishedTuiConfig = {
 	projectRefreshIntervalMs: DEFAULT_PROJECT_REFRESH_INTERVAL_MS,
+	sessionClosing: false,
 	icons: resolveConfiguredIcons("auto"),
 	colors: {
 		// Color *names*, not fixed literals. With the footer's default
@@ -1816,6 +1823,7 @@ export function mergeConfig(
 	const colors = normalizeColors(colorsRecord);
 	const canonical: ZentuiConfig = {
 		projectRefreshIntervalMs: parseProjectRefreshIntervalMs(config.projectRefreshIntervalMs),
+		sessionClosing: false,
 		icons: resolveConfiguredIcons(
 			normalizeIconMode(iconsRecord.mode),
 			normalizeIconOverrides(iconsRecord),
@@ -1884,6 +1892,14 @@ export function loadConfig(): PolishedTuiConfig {
 	} catch {
 		return mergeConfig({});
 	}
+}
+
+/**
+ * Toggle the runtime-only shutdown flag on a live config object. The flag is
+ * never written to the config file; a fresh load always resumes at false.
+ */
+export function setSessionClosing(config: ZentuiConfig, closing: boolean): void {
+	config.sessionClosing = closing;
 }
 
 function overlayKnown(raw: unknown, known: unknown): unknown {
